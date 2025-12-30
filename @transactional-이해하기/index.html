@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@Transactional 이해하기</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <!-- Highlight.js Themes -->
+    <link rel="stylesheet" id="hljs-theme-light"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" disabled>
+    <link rel="stylesheet" id="hljs-theme-dark"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" disabled>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+    <script>
+        // Theme initialization
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // Load initial hljs theme
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.getElementById(isDark ? 'hljs-theme-dark' : 'hljs-theme-light').removeAttribute('disabled');
+            hljs.highlightAll();
+            hljs.initLineNumbersOnLoad({ singleLine: true });
+        });
+    </script>
+</head>
+
+<body>
+    <header class="mobile-header">
+        <div class="mobile-logo">My Blog</div>
+        <button id="menu-toggle" class="menu-toggle">☰</button>
+    </header>
+
+    <!-- 왼쪽 사이드바: 카테고리 및 포스트 목록 -->
+    <aside id="sidebar" class="sidebar">
+        <h2 class="sidebar-title">eello</h2>
+        <nav class="category-list">
+                <div class="category-item depth-1">
+                    <div class="category-name">개발</div>
+                    <ul class="post-list"></ul>
+                    
+                <div class="category-item depth-2">
+                    <div class="category-name">tech</div>
+                    <ul class="post-list">
+                <li class="post-item">
+                    <a href="../쿠팡-유출/" class="post-link ">쿠팡 유출</a>
+                </li>
+            </ul>
+                    
+                </div>
+            
+                <div class="category-item depth-2">
+                    <div class="category-name">spring</div>
+                    <ul class="post-list">
+                <li class="post-item">
+                    <a href="../@transactional-이해하기/" class="post-link active">@Transactional 이해하기</a>
+                </li>
+            </ul>
+                    
+                </div>
+            
+                </div>
+            </nav>
+
+        <div class="theme-toggle-container">
+            <button id="theme-toggle" class="theme-toggle-btn">
+                <span class="icon">🌓</span>
+                <span class="text">Switch to Dark Mode</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- 중앙 본문 영역 -->
+    <main class="main-wrapper">
+        <div class="content-container">
+            <article class="article-content">
+                <header class="article-header">
+                    <h1 class="article-title">@Transactional 이해하기</h1>
+                    <div class="article-meta">
+                        <div>Published on 2025-04-24 00:36:55</div>
+                        <div>Category: 개발 > spring</div>
+                    </div>
+                </header>
+
+                <section class="body">
+                    <p>먼저, 스프링부트와 JPA에서 데이터를 저장하는 다음과 같은 코드를 보자.</p>
+<div class="code-block-wrapper">
+    <div class="code-block-header">
+        <span class="code-lang">java</span>
+        <span class="code-copy">Copy</span>
+    </div>
+    <pre class="code-block language-java"><code class="code-inner">@Service  
+@RequiredArgsConstructor  
+public class UserService {  
+      
+    private final UserRepository userRepository;  
+  
+    public User externalSave(User user) {  
+        return externalSave(user);  
+    }  
+      
+    @Transactional  
+    public User internalSave(User user) {  
+        return userRepository.save(user);  
+    }  
+}
+</code></pre>
+</div>
+<p>만약 외부에서 <code>UserService.externalSave(user);</code> 를 실행한다면 user는 정상적으로 저장이 될까? 정답은 <em><strong>Yes</strong></em>가 될 수도 있고 <em><strong>No</strong></em>가 될 수도 있다. 그렇다면 언제 <em><strong>Yes</strong></em>이고 언제 <em><strong>No</strong></em>일까?</p>
+<h2 id="transactional의-동작-방식">@Transactional의 동작 방식</h2>
+<p>일단 <em><strong>@Transactional</strong></em>의 동작 방식을 간략하게 알아보자. <em><strong>@Transactional</strong></em>은 AOP를 활용한 기술이기 때문에 이 어노테이션이 클래스 또는 클래스 내의 메소드에 적용되어 있다면 해당 클래스는 프록시로 동작한다. 예를들어, <em>UserService</em> 클래스 내에 <em><strong>@Transactional</strong></em>이 적용된 <code>save()</code> 메소드가 선언되어있고 <em>UserController에서</em> <em>UserService의</em> <code>save()</code> 메소드를 실행시킨다 가정해보자.</p>
+<p><code>save()</code> 메소드에 <em><strong>@Transactional</strong></em>이 적용되어 있으니 스프링은 <em>UserService</em>에 대한 빈을 프록시 객체로 생성해 등록하게 된다.</p>
+<p><img src="images/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202025-04-24%20%EC%98%A4%EC%A0%84%202.51.42.webp" alt="836"></p>
+<p>실제로 <code>@Autowired</code>로 주입받은 <em>UserService</em>의 <code>getClass()</code>를 출력해봤을 때 클래스명 뒤에 $SpringCGLIB$이 붙는다는 것은 CGLIB을 사용해 프록시 객체가 생성되었다는 의미이다. 프록시 객체는 내부에 실제 객체에 대한 참조(target)를 포함하며 실제 객체의 메소드를 실행하기 전에 AOP 로직을 수행한다. <em><strong>@Transactional</strong></em>의 경우는 이 때 트랜잭션을 만들게 된다.</p>
+<blockquote>
+<p><a href="https://www.youtube.com/watch?v=XJo5O6GrFC0">[10분 테코톡] 카피의 @Transactional</a>을 참고하면 더 자세한 동작 방식을 이해할 수 있다.</p>
+</blockquote>
+<p><img src="images/Pasted%20image%2020250424034033.webp" alt="575|564"></p>
+<p>위와 같이 <em>UserController</em>에서 <em>UserService</em>의 <code>save()</code> 메소드를 호출하면 프록시 객체의 <code>save()</code> 메소드가 실행되고 내부에서 <code>target.save()</code>를 통해 실제 <em>UserService</em>의 <code>save()</code> 메소드가 실행되는 것이다.</p>
+<h2 id="프록시-패턴의-문제점">프록시 패턴의 문제점</h2>
+<p>위와 같이 프록시 객체를 활용하는 패턴을 프록시 패턴이라고 한다. 하지만 이 패턴에는 내부 호출 문제(Self-Invocation)이라는 중요한 문제점이 하나 있다.</p>
+<p>프록시 객체는 외부 호출에 대해서만 적용된다. <em>UserController</em> 등과 같은 외부에서 <em>UserService</em>의 프록시 객체를 호출할 때 <em><strong>@Transactional</strong></em>에 대한 AOP가 동작한한다는 것이다. 맨 처음 예시로 들었던 <em>UserService</em>를 생각해보자. <code>externalSave()</code> 내에서 똑같이 <em>UserService</em> 내에 존재하는 <code>internalSave()</code> 메소드를 호출했다. <code>externalSave()</code> 내에서 <code>internalSave()</code>를 호출한 것처럼 동일 클래스에 존재하는 메소드를 실행할 때 AOP가 동작하지 않는다는 의미이다. 이러한 문제가 <strong>내부 호출 문제</strong>이다.</p>
+<p>이제 처음에 제시했던 문제를 생각해보자. <em>UserService</em>의 <code>externalSave(user)</code>를 호출하는 외부 클래스를 <em>UserController</em>라고 하자. 여전히 <code>internalSave()</code>에는 <em><strong>@Transactional</strong></em>이 적용되어 있으므로 <em>UserService</em>는 프록시 객체이며 내부에서 실제 객체에 대한 참조인 target을 통해 <code>externalSave(user)</code>를 호출하게 된다.</p>
+<p><img src="images/Pasted%20image%2020250424034132.webp" alt="542"></p>
+<p><code>externalSave(user)</code> 내부에서 <code>internalSave(user)</code>를 호출하는 것은 동일한 target 객체 내에서 일어나는 일이다. 즉, 외부에서 일어난 상황이 아니기 때문에 <code>internalSave()</code>에 <em><strong>@Transactional</strong></em>이 적용되어 있다고 하더라도 AOP 로직이 실행되지 않는다. AOP 로직이 실행되지 않으므로 트랜잭션이 존재하지 않게 된다. JPA에서는 데이터 저장이나 수정, 삭제는 트랜잭션 내에서만 가능하므로 <em>UserRepository</em>의 <code>save()</code>가 호출되더라도 데이터베이스에 반영이 되지 않는다.</p>
+<p>즉, <em>UserController</em>에서 <code>externalSave(user)</code>를 호출했을 때 user는 정상적으로 저장되지 않는다. 이것이 <em><strong>No</strong></em>가 되는 경우이다.</p>
+<h2 id="프록시-패턴의-문제점-해결">프록시 패턴의 문제점 해결</h2>
+<p>정답이 <em><strong>Yes</strong></em>가 되는 경우를 알아보기 전에 프록시 패턴의 문제점인 내부 호출 문제에 대한 해결 방법을 간단히 알아보자.</p>
+<p>내부 호출 문제를 해결하는 방법은 크게 2가지로 쉽게 해결가능하다.</p>
+<ol>
+<li><code>externalSave()</code>에 <em><strong>@Transactional</strong></em> 적용</li>
+<li><code>internalSave()</code>를 다른 클래스로 분리</li>
+</ol>
+<p>1번으로 해결한다면 <code>externalSave()</code>에 <em><strong>@Transactional</strong></em>이 적용 되었기 때문에 프록시 객체에서 <code>target.externalSave(user)</code>를 실행하기 전에 트랜잭션을 생성하는 AOP 로직을 실행하게 된다. 때문에 <em>UserRepository</em>의 <code>save()</code>는 트랜잭션 내에서 실행되는 것이 되므로 데이터베이스에 데이터가 저장된다.</p>
+<p>2번 해결방법은 새로운 클래스 <em>UserServiceB</em>를 생성해 <code>internalSave()</code> 메소드를 해당 클래스로 옮겨주는 것이다. 그렇게 된다면 <code>externalSave()</code> 내에서 분리된 <em>UserServiceB</em> 내에 있는 <code>internalSave()</code>를 호출하게 된다. 이때 <code>internalSave()</code> 메소드에는 <em><strong>@Transactional</strong></em>이 적용되어 있기 때문에 마찬가지로 프록시 객체로 등록될 것이고 <code>externalSave()</code>에서 호출하는 것은 <em>UserServiceB</em>의 프록시 객체가 될 것이다.</p>
+<p>이 말은 <em>UserController</em>에서 <em>UserService</em>를 호출하는 것과 같다는 것으로 <code>internalSave()</code>를 호출하기 전에 트랜잭션이 만들어질 것이고 결국 <em>UserRepository</em>의 <code>save()</code>는 트랜잭션 내에서 동작하므로 데이터가 데이터베이스에 정상적으로 저장된다는 의미이다.</p>
+<p><img src="images/Pasted%20image%2020250424040810.webp" alt="889"></p>
+<p>이제 정답이 <em><strong>Yes</strong></em>가 되는 경우를 알아보자. 답은 간단하다. Spring Boot에서 JPA를 사용할 때 일반적으로 많이 Spring Data Jpa 의존성을 추가해 사용하고 레포지토리는 아래와 같이 인터페이스로 <em>JpaRepository</em>를 상속해 사용한다.</p>
+<div class="code-block-wrapper">
+    <div class="code-block-header">
+        <span class="code-lang">java</span>
+        <span class="code-copy">Copy</span>
+    </div>
+    <pre class="code-block language-java"><code class="code-inner">public interface UserRepository extends JpaRepository&lt;User, Long&gt; {}
+</code></pre>
+</div>
+<p><em>JpaRepository</em>의 기본적인 구현체는 <em>SimpleJpaRepository</em>이며 <em>UserRepository</em>의 <code>save()</code>는 실제로 <em>SimpleJpaRepository</em>의 <code>save()</code> 함수가 실행되는 것이다. 이 때 <em>SimpleJpaRepository</em>의 <code>save()</code>에는 <em><strong>@Transactional</strong></em>이 적용되어 있다.</p>
+<p><img src="images/Pasted%20image%2020250424041433.webp" alt="627"></p>
+<p>때문에 내부 호출 문제의 2번째 해결방법과 같은 원리로 <code>save()</code>가 실행되기 전에 트랜잭션이 생성되므로 정상적으로 데이터가 저장될 수 있는 것이다.</p>
+<h2 id="결론">결론</h2>
+<p>앞에서 제시한 문제는 내부 호출 문제 때문에 데이터가 정상적으로 저장되지 않는게 맞다. Spring Data Jpa의 <em>JpaRepository</em>를 상속해 레포지토리를 만들었다면 내부적으로 <em><strong>@Transactional</strong></em>이 적용되어 있어 데이터가 정상적으로 저장될 수 있다.</p>
+
+                </section>
+            </article>
+
+            <!-- 오른쪽 사이드바: TOC -->
+            <aside class="toc-sidebar">
+                <h3 class="toc-title">ON THIS PAGE</h3>
+                <nav>
+                    <ul class="toc-list">
+                <li class="toc-item" style="margin-left: 0px">
+                    <a href="#transactional의-동작-방식" class="toc-link">@Transactional의 동작 방식</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 0px">
+                    <a href="#프록시-패턴의-문제점" class="toc-link">프록시 패턴의 문제점</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 0px">
+                    <a href="#프록시-패턴의-문제점-해결" class="toc-link">프록시 패턴의 문제점 해결</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 0px">
+                    <a href="#결론" class="toc-link">결론</a>
+                </li>
+            </ul>
+                </nav>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeText = themeToggle.querySelector('.text');
+
+        function updateToggleButton(theme) {
+            themeText.textContent = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+        }
+
+        updateToggleButton(document.documentElement.getAttribute('data-theme'));
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateToggleButton(newTheme);
+
+            // Toggle hljs themes
+            document.getElementById('hljs-theme-light').disabled = newTheme === 'dark';
+            document.getElementById('hljs-theme-dark').disabled = newTheme === 'light';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 &&
+                !sidebar.contains(e.target) &&
+                !menuToggle.contains(e.target) &&
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Code Copy Implementation
+        document.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('code-copy')) {
+                const btn = e.target;
+                const wrapper = btn.closest('.code-block-wrapper');
+                const codeInner = wrapper.querySelector('.code-inner');
+
+                // Collect text from each code-line to ensure correct line breaks
+                const codeCells = Array.from(codeInner.querySelectorAll('.hljs-ln-code'));
+                const textToCopy = codeCells.length > 0
+                    ? codeCells.map(cell => cell.innerText).join('\n')
+                    : codeInner.innerText;
+
+                try {
+                    await navigator.clipboard.writeText(textToCopy);
+
+                    // Visual feedback
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('success');
+
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.classList.remove('success');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy code:', err);
+                    btn.textContent = 'Error';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

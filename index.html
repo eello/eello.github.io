@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="./styles/main.css">
+    <!-- Highlight.js Themes -->
+    <link rel="stylesheet" id="hljs-theme-light"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" disabled>
+    <link rel="stylesheet" id="hljs-theme-dark"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" disabled>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+    <script>
+        // Theme initialization
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // Load initial hljs theme
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.getElementById(isDark ? 'hljs-theme-dark' : 'hljs-theme-light').removeAttribute('disabled');
+            hljs.highlightAll();
+            hljs.initLineNumbersOnLoad({ singleLine: true });
+        });
+    </script>
+</head>
+
+<body>
+    <header class="mobile-header">
+        <div class="mobile-logo">My Blog</div>
+        <button id="menu-toggle" class="menu-toggle">☰</button>
+    </header>
+
+    <!-- 왼쪽 사이드바: 카테고리 및 포스트 목록 -->
+    <aside id="sidebar" class="sidebar">
+        <h2 class="sidebar-title">eello</h2>
+        <nav class="category-list">
+                <div class="category-item depth-1">
+                    <div class="category-name">개발</div>
+                    <ul class="post-list"></ul>
+                    
+                <div class="category-item depth-2">
+                    <div class="category-name">tech</div>
+                    <ul class="post-list">
+                <li class="post-item">
+                    <a href="./쿠팡-유출/" class="post-link ">쿠팡 유출</a>
+                </li>
+            </ul>
+                    
+                </div>
+            
+                <div class="category-item depth-2">
+                    <div class="category-name">spring</div>
+                    <ul class="post-list">
+                <li class="post-item">
+                    <a href="./@transactional-이해하기/" class="post-link ">@Transactional 이해하기</a>
+                </li>
+            </ul>
+                    
+                </div>
+            
+                </div>
+            </nav>
+
+        <div class="theme-toggle-container">
+            <button id="theme-toggle" class="theme-toggle-btn">
+                <span class="icon">🌓</span>
+                <span class="text">Switch to Dark Mode</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- 중앙 본문 영역 -->
+    <main class="main-wrapper">
+        <div class="content-container">
+            <article class="article-content">
+                
+
+                <section class="body">
+                    
+            <div class="landing-page">
+                <div class="post-list-container">
+                    
+                        <a href="./쿠팡-유출/" class="post-entry">
+                            <span class="post-entry-title">쿠팡 유출</span>
+                            <span class="post-entry-date">2025-12-15</span>
+                        </a>
+                    
+                        <a href="./@transactional-이해하기/" class="post-entry">
+                            <span class="post-entry-title">@Transactional 이해하기</span>
+                            <span class="post-entry-date">2025-04-24 00:36:55</span>
+                        </a>
+                    
+                </div>
+            </div>
+        
+                </section>
+            </article>
+
+            <!-- 오른쪽 사이드바: TOC -->
+            
+        </div>
+    </main>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeText = themeToggle.querySelector('.text');
+
+        function updateToggleButton(theme) {
+            themeText.textContent = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+        }
+
+        updateToggleButton(document.documentElement.getAttribute('data-theme'));
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateToggleButton(newTheme);
+
+            // Toggle hljs themes
+            document.getElementById('hljs-theme-light').disabled = newTheme === 'dark';
+            document.getElementById('hljs-theme-dark').disabled = newTheme === 'light';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 &&
+                !sidebar.contains(e.target) &&
+                !menuToggle.contains(e.target) &&
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Code Copy Implementation
+        document.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('code-copy')) {
+                const btn = e.target;
+                const wrapper = btn.closest('.code-block-wrapper');
+                const codeInner = wrapper.querySelector('.code-inner');
+
+                // Collect text from each code-line to ensure correct line breaks
+                const codeCells = Array.from(codeInner.querySelectorAll('.hljs-ln-code'));
+                const textToCopy = codeCells.length > 0
+                    ? codeCells.map(cell => cell.innerText).join('\n')
+                    : codeInner.innerText;
+
+                try {
+                    await navigator.clipboard.writeText(textToCopy);
+
+                    // Visual feedback
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('success');
+
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.classList.remove('success');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy code:', err);
+                    btn.textContent = 'Error';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

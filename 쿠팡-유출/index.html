@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>쿠팡 유출</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <!-- Highlight.js Themes -->
+    <link rel="stylesheet" id="hljs-theme-light"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" disabled>
+    <link rel="stylesheet" id="hljs-theme-dark"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" disabled>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+    <script>
+        // Theme initialization
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // Load initial hljs theme
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.getElementById(isDark ? 'hljs-theme-dark' : 'hljs-theme-light').removeAttribute('disabled');
+            hljs.highlightAll();
+            hljs.initLineNumbersOnLoad({ singleLine: true });
+        });
+    </script>
+</head>
+
+<body>
+    <header class="mobile-header">
+        <div class="mobile-logo">My Blog</div>
+        <button id="menu-toggle" class="menu-toggle">☰</button>
+    </header>
+
+    <!-- 왼쪽 사이드바: 카테고리 및 포스트 목록 -->
+    <aside id="sidebar" class="sidebar">
+        <h2 class="sidebar-title">eello</h2>
+        <nav class="category-list">
+                <div class="category-item depth-1">
+                    <div class="category-name">개발</div>
+                    <ul class="post-list"></ul>
+                    
+                <div class="category-item depth-2">
+                    <div class="category-name">tech</div>
+                    <ul class="post-list">
+                <li class="post-item">
+                    <a href="../쿠팡-유출/" class="post-link active">쿠팡 유출</a>
+                </li>
+            </ul>
+                    
+                </div>
+            
+                <div class="category-item depth-2">
+                    <div class="category-name">spring</div>
+                    <ul class="post-list">
+                <li class="post-item">
+                    <a href="../@transactional-이해하기/" class="post-link ">@Transactional 이해하기</a>
+                </li>
+            </ul>
+                    
+                </div>
+            
+                </div>
+            </nav>
+
+        <div class="theme-toggle-container">
+            <button id="theme-toggle" class="theme-toggle-btn">
+                <span class="icon">🌓</span>
+                <span class="text">Switch to Dark Mode</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- 중앙 본문 영역 -->
+    <main class="main-wrapper">
+        <div class="content-container">
+            <article class="article-content">
+                <header class="article-header">
+                    <h1 class="article-title">쿠팡 유출</h1>
+                    <div class="article-meta">
+                        <div>Published on 2025-12-15</div>
+                        <div>Category: 개발 > tech</div>
+                    </div>
+                </header>
+
+                <section class="body">
+                    <p>최근 쿠팡에서 이용자의 약 3,300만 명의 개인정보가 유출되는 사고가 발생했다.</p>
+<p>알려진 이 사고의 원인은 데이터베이스를 직접 접근해 이루어진 것이 아닌 인증 토큰을 사용해 사용자의 정보를 조회한 것이다.
+퇴사한 전직원은 인증 토큰을 서명할 수 있는 키를 유출해 인증 토큰을 생성하고 이렇게 만들어진 토큰을 사용해 쿠팡 API를 통해 사용자 정보를 조회한 것이다.</p>
+<h2 id="핵심-개념">핵심 개념</h2>
+<p>이 유출 사고 과정에 대해 이해하기 위해 먼저 두 가지 개념 인증 토큰과 서명키에 대해서 간단히 이해해야 한다.</p>
+<h3 id="1-인증-토큰">1. 인증 토큰</h3>
+<p>인증 토큰은 쉽게 생각하면 출입증이라고 생각하면 된다. 출입증만 가지고 있으면 출입증이 보장하고 있는 기간 내에서는 언제든지 출입이 가능하다.
+요즘 많은 서비스를 이용할 때 처음 로그인을 하고나면 한동안 로그인을 하지 않아도 로그인 상태를 유지하고 있던 경험을 해봤을 것이다. 이게 가능한 이유가 이 출입증, 즉 인증 토큰을 가지고 있기 때문이다.</p>
+<p>사용자가 서비스에 로그인을 하면 서비스는 출입할 수 있는 인증 토큰을 발급해주고 사용자는 별도의 로그인 없이 인증 토큰을 보여줌으로써 입장하게 된다.
+<img src="images/Pasted%20image%2020251215110221.webp" alt="488"></p>
+<p>인증 토큰(출입증)에는 만료기간이 존재하고 이 기간이 끝나기 전까지는 자유롭게 출입이 가능하다.</p>
+<blockquote>
+<p>이 동작은 실제 동작을 많이 간소화한 것으로 실제 구현에서는 좀 더 복잡한 과정이 추가된다.</p>
+</blockquote>
+<h3 id="2-서명키">2. 서명키</h3>
+<p>서명키는 인증 토큰(출입증)을 만들 때 사용되고 인증 토큰을 검증할 때도 사용되는 Key 이다.
+서명키가 유출된다면 외부에서 인증 토큰을 만들어 언제든지 서비스에 출입이 가능하기 때문에 보안에 신경써야 한다.</p>
+<h2 id="유출-핵심-원인과-과정">유출 핵심 원인과 과정</h2>
+<p>개인정보가 유출된 가장 큰 원인에는 두 가지가 있다.</p>
+<h3 id="원인-1-서명키-유출">원인 1. 서명키 유출</h3>
+<p>앞서 간단하게 알아봤듯 서명키가 유출되면 외부에서 인증 토큰을 만들어 서비스에 접근할 수 있게 된다.
+쿠팡은 퇴사자에 대해 이런 중요한 것들에 대해 관리 소홀로 인해 유출된 것이다.</p>
+<h3 id="원인-2-예측-가능한-사용자-식별">원인 2. 예측 가능한 사용자 식별</h3>
+<p>서명키가 유출되고 외부에서 서비스에 접근하게 되더라도 그 인증 토큰이 어떤 사용자의 것인지에 식별하지 못한다면 사용자의 정보를 조회할 수 없다.</p>
+<p>인증 토큰 방식을 사용하는 서비스에서는 처음 인증 토큰 발급을 위한 로그인 이후에는 한동안 로그인 없이 인증 토큰으로 출입하게 된다.
+그렇더라도 마이페이지에 들어가보면 정확히 나에 대한 정보가 출력되는 것을 볼 수 있다.</p>
+<p>이는 인증 토큰에 나에 대한 식별값이 포함되기 때문이다.
+서비스는 먼저 인증 토큰이 자신의 서비스가 사용하는 서명키에 의해 만들어졌는지 검증한다. 검증이 통과한다면 일단 서비스에 접근을 허용한다.
+이 후 인증 토큰에 포함된 사용자의 식별값을 가지고 해당 사용자의 정보를 조회해 응답하게 된다.</p>
+<p>즉, 서명키가 유출되더라도 인증 토큰을 만들 때 정확한 사용자의 식별값을 포함시키지 않는다면 정보를 조회할 수 없다.
+하지만 쿠팡은 이 사용자의 식별값을 예측 가능한 값으로 사용했기 때문에 쉽게 사용자의 정보를 조회할 수 있었던 것이다.</p>
+<h3 id="과정">과정</h3>
+<p>쿠팡은 데이터베이스에 사용자 정보를 저장할 때 1씩 증가하는 정수를 식별값으로 사용했고 이 값을 그대로 인증 토큰에서도 사용자 식별값으로 사용했다.
+공격자는 이러한 쿠팡 인증 방식에 대해 알고 있었을 것이다. 탈취한 서명키를 가지고 1부터 증가하는 사용자 식별값을 포함해 인증 토큰을 만들어 API에 요청했고
+쿠팡 서버는 검증된 토큰에서 사용자의 식별값을 추출해 데이터베이스에서 정보를 조회해 응답하게 된 것이다.</p>
+<p><img src="images/Pasted%20image%2020251215122904.webp" alt="877"></p>
+<p>만약 사용자 식별값을 로그인 이메일로 한다면 공격자는 쿠팡에 가입된 전체 사용자에 대한 이메일을 갖고 있지 않는 한 서명키로 인증 토큰을 만들더라도 사용자 식별값을 포함시킬 수 없기 때문에 사용자 정보를 조회할 수 있는 인증 토큰을 만들지 못했을 것이다.</p>
+
+                </section>
+            </article>
+
+            <!-- 오른쪽 사이드바: TOC -->
+            <aside class="toc-sidebar">
+                <h3 class="toc-title">ON THIS PAGE</h3>
+                <nav>
+                    <ul class="toc-list">
+                <li class="toc-item" style="margin-left: 0px">
+                    <a href="#핵심-개념" class="toc-link">핵심 개념</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 16px">
+                    <a href="#1-인증-토큰" class="toc-link">1. 인증 토큰</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 16px">
+                    <a href="#2-서명키" class="toc-link">2. 서명키</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 0px">
+                    <a href="#유출-핵심-원인과-과정" class="toc-link">유출 핵심 원인과 과정</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 16px">
+                    <a href="#원인-1-서명키-유출" class="toc-link">원인 1. 서명키 유출</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 16px">
+                    <a href="#원인-2-예측-가능한-사용자-식별" class="toc-link">원인 2. 예측 가능한 사용자 식별</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 16px">
+                    <a href="#과정" class="toc-link">과정</a>
+                </li>
+            </ul>
+                </nav>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeText = themeToggle.querySelector('.text');
+
+        function updateToggleButton(theme) {
+            themeText.textContent = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+        }
+
+        updateToggleButton(document.documentElement.getAttribute('data-theme'));
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateToggleButton(newTheme);
+
+            // Toggle hljs themes
+            document.getElementById('hljs-theme-light').disabled = newTheme === 'dark';
+            document.getElementById('hljs-theme-dark').disabled = newTheme === 'light';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 &&
+                !sidebar.contains(e.target) &&
+                !menuToggle.contains(e.target) &&
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Code Copy Implementation
+        document.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('code-copy')) {
+                const btn = e.target;
+                const wrapper = btn.closest('.code-block-wrapper');
+                const codeInner = wrapper.querySelector('.code-inner');
+
+                // Collect text from each code-line to ensure correct line breaks
+                const codeCells = Array.from(codeInner.querySelectorAll('.hljs-ln-code'));
+                const textToCopy = codeCells.length > 0
+                    ? codeCells.map(cell => cell.innerText).join('\n')
+                    : codeInner.innerText;
+
+                try {
+                    await navigator.clipboard.writeText(textToCopy);
+
+                    // Visual feedback
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('success');
+
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.classList.remove('success');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy code:', err);
+                    btn.textContent = 'Error';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
