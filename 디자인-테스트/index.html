@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}}</title>
-    <link rel="stylesheet" href="./styles/main.css">
+    <title>design test</title>
+    <link rel="stylesheet" href="../styles/main.css">
     <!-- Highlight.js Themes -->
     <link rel="stylesheet" id="hljs-theme-light"
         href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" disabled>
@@ -37,7 +37,7 @@
 
     <!-- 왼쪽 사이드바: 카테고리 및 포스트 목록 -->
     <aside id="sidebar" class="sidebar">
-        <h2 class="sidebar-title"><a href="./" class="sidebar-home-link">eello</a></h2>
+        <h2 class="sidebar-title"><a href="../" class="sidebar-home-link">eello</a></h2>
         <nav class="category-list">
                 <div class="category-item depth-1">
                     <div class="category-name">Project</div>
@@ -47,7 +47,7 @@
                     <div class="category-name">SPH</div>
                     <ul class="post-list">
                 <li class="post-item">
-                    <a href="./sam-deploy-error---classnotfoundexception/" class="post-link ">SAM Deploy Error - ClassNotFoundException</a>
+                    <a href="../sam-deploy-error---classnotfoundexception/" class="post-link ">SAM Deploy Error - ClassNotFoundException</a>
                 </li>
             </ul>
                     
@@ -63,7 +63,7 @@
                     <div class="category-name">tech</div>
                     <ul class="post-list">
                 <li class="post-item">
-                    <a href="./쿠팡-유출/" class="post-link ">쿠팡 유출</a>
+                    <a href="../쿠팡-유출/" class="post-link ">쿠팡 유출</a>
                 </li>
             </ul>
                     
@@ -71,7 +71,7 @@
                     <div class="category-name">test</div>
                     <ul class="post-list">
                 <li class="post-item">
-                    <a href="./디자인-테스트/" class="post-link ">design test</a>
+                    <a href="../디자인-테스트/" class="post-link active">design test</a>
                 </li>
             </ul>
                     
@@ -83,7 +83,7 @@
                     <div class="category-name">spring</div>
                     <ul class="post-list">
                 <li class="post-item">
-                    <a href="./@transactional-이해하기/" class="post-link ">@Transactional 이해하기</a>
+                    <a href="../@transactional-이해하기/" class="post-link ">@Transactional 이해하기</a>
                 </li>
             </ul>
                     
@@ -95,7 +95,7 @@
                     <div class="category-name">Uncategorized</div>
                     <ul class="post-list">
                 <li class="post-item">
-                    <a href="./sam-deploy-error---basepathmapping-create-failed/" class="post-link ">SAM Deploy Error - BasePathMapping Create Failed</a>
+                    <a href="../sam-deploy-error---basepathmapping-create-failed/" class="post-link ">SAM Deploy Error - BasePathMapping Create Failed</a>
                 </li>
             </ul>
                     
@@ -114,46 +114,51 @@
     <main class="main-wrapper">
         <div class="content-container">
             <article class="article-content">
-                
+                <header class="article-header">
+                    <h1 class="article-title">design test</h1>
+                    <div class="article-meta">
+                        <div>Published on 2025-12-30</div>
+                        <div>Category: 개발 > tech > test</div>
+                    </div>
+                </header>
 
                 <section class="body">
-                    
-            <div class="landing-page">
-                <div class="post-list-container">
-                    
-                        <a href="./sam-deploy-error---classnotfoundexception/" class="post-entry">
-                            <span class="post-entry-title">SAM Deploy Error - ClassNotFoundException</span>
-                            <span class="post-entry-date">2025-12-30</span>
-                        </a>
-                    
-                        <a href="./디자인-테스트/" class="post-entry">
-                            <span class="post-entry-title">design test</span>
-                            <span class="post-entry-date">2025-12-30</span>
-                        </a>
-                    
-                        <a href="./쿠팡-유출/" class="post-entry">
-                            <span class="post-entry-title">쿠팡 유출</span>
-                            <span class="post-entry-date">2025-12-15</span>
-                        </a>
-                    
-                        <a href="./sam-deploy-error---basepathmapping-create-failed/" class="post-entry">
-                            <span class="post-entry-title">SAM Deploy Error - BasePathMapping Create Failed</span>
-                            <span class="post-entry-date">2025-12-01 11:07:45</span>
-                        </a>
-                    
-                        <a href="./@transactional-이해하기/" class="post-entry">
-                            <span class="post-entry-title">@Transactional 이해하기</span>
-                            <span class="post-entry-date">2025-04-24 00:36:55</span>
-                        </a>
-                    
-                </div>
+                    <h2 id="콜아웃">콜아웃</h2>
+<div class="callout callout-warning">
+            <div class="callout-header">
+                <span class="callout-icon"></span>
+                <div class="callout-title">WARNING</div>
             </div>
-        
+            <div class="callout-content">–template-file 옵션을 따로 작성하지 않으면 기본적으로 template.yaml 파일을 참조하게 되고 이때는 다음과 같은 순서로 template.yaml 파일을 찾아 사용하게 된다.
+<ol>
+<li><code>.aws-sam/build/template.yaml</code></li>
+<li>루트 디렉토리의 <code>template.yaml</code> 또는 <code>template.yml</code></li>
+</ol>
+<p>분리하기 전에는 알아서 처리되기 때문에 문제없이 배포가 가능한 것이었다.</p></div>
+        </div>
+<h2 id="인용">인용</h2>
+<blockquote>
+<p>hihihihi</p>
+</blockquote>
+
                 </section>
             </article>
 
             <!-- 오른쪽 사이드바: TOC -->
+            <aside class="toc-sidebar">
+                <h3 class="toc-title">ON THIS PAGE</h3>
+                <nav>
+                    <ul class="toc-list">
+                <li class="toc-item" style="margin-left: 0px">
+                    <a href="#콜아웃" class="toc-link">콜아웃</a>
+                </li>
             
+                <li class="toc-item" style="margin-left: 0px">
+                    <a href="#인용" class="toc-link">인용</a>
+                </li>
+            </ul>
+                </nav>
+            </aside>
         </div>
     </main>
 

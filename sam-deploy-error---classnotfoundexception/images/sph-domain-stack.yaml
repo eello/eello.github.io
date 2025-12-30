@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: SAA Practice Hub – Domain Mapping Stack
+
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues:
+      - dev
+      - prod
+
+  DeployDomainName:
+    Type: String
+
+Resources:
+
+  BasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName: !Ref DeployDomainName
+      RestApiId:
+        Fn::ImportValue: !Sub "sph-api-id-${Environment}"
+      Stage:
+        Fn::ImportValue: !Sub "sph-api-stage-${Environment}"

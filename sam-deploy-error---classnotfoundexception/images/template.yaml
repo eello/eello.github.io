@@ -1,0 +1,233 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAA Practice Hub Serverless
+
+# ========================================
+# Parameters (환경별 변수)
+# ========================================
+Parameters:
+  DeployDomainName:
+    Type: String
+
+  Environment:
+    Type: String
+    AllowedValues:
+      - dev
+      - prod
+
+  CognitoUserPoolId:
+    Type: String
+
+  CognitoAppClientId:
+    Type: String
+
+  CognitoDomain:
+    Type: String
+
+  CognitoRedirectUri:
+    Type: String
+
+  QuizTableName:
+    Type: String
+
+  BookmarkTableName:
+    Type: String
+
+  S3BucketName:
+    Type: String
+
+  ApiStageName:
+    Type: String
+
+  AllowedOrigin:
+    Type: String
+
+Conditions:
+  IsDev: !Equals [!Ref Environment, dev]
+  IsProd: !Equals [!Ref Environment, prod]
+
+# ========================================
+# Globals
+# ========================================
+Globals:
+  Function:
+    Tracing: Active
+    LoggingConfig:
+      LogFormat: JSON
+    Runtime: java21
+    Architectures:
+      - arm64
+    MemorySize: 512
+    Timeout: 30
+    SnapStart:
+      ApplyOn: !If [IsProd, PublishedVersions, None]
+    Environment:
+      Variables:
+        APP_ENV: !Ref Environment
+        DYNAMODB_TBL_SPH_QUIZ: !Ref QuizTableName
+        DYNAMODB_TBL_SPH_BOOKMARK: !Ref BookmarkTableName
+        S3_BUCKET: !Ref S3BucketName
+
+  Api:
+    TracingEnabled: true
+
+# ========================================
+# Resources
+# ========================================
+Resources:
+
+  SphApiExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ApiGatewayCloudWatchLogsPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogGroups
+                  - logs:PutRetentionPolicy
+                Resource: '*'
+
+  # ========================================
+  # API Gateway
+  # ========================================
+  SphApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref ApiStageName
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${CognitoUserPoolId}
+            AuthorizationScopes:
+              - https://api.eello.site/saa/read
+        AddDefaultAuthorizerToCorsPreflight: false
+      Cors:
+        AllowOrigin: !Sub "'${AllowedOrigin}'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowCredentials: true
+        MaxAge: "'300'"
+
+      AccessLogSetting:
+        DestinationArn: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/${ApiStageName}-access-logs
+        Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath","status":"$context.status","responseLength":"$context.responseLength","errorMessage":"$context.error.message","authorizerError":"$context.authorizer.error"}'
+
+      MethodSettings:
+        - LoggingLevel: INFO
+          ResourcePath: "/*"
+          HttpMethod: "*"
+          DataTraceEnabled: true
+          MetricsEnabled: true
+
+  BasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName: !Ref DeployDomainName
+      RestApiId: !Ref SphApi
+#      Stage: !Ref ApiStageName
+
+  SphApiAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/api-gateway/${ApiStageName}-access-logs
+      RetentionInDays: 14
+
+  # ========================================
+  # Lambda Functions
+  # ========================================
+
+  # Auth Token
+  AuthTokenFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/auth-token
+      Handler: site.eello.sph.auth.handler.AuthTokenHandler::handleRequest
+      Events:
+        GetTokenApi:
+          Type: Api
+          Properties:
+            Path: /oauth2/token
+            Method: post
+            RestApiId: !Ref SphApi
+            Auth:
+              Authorizer: NONE
+      Environment:
+        Variables:
+          COGNITO_APP_CLIENT_ID: !Ref CognitoAppClientId
+          COGNITO_DOMAIN: !Ref CognitoDomain
+          COGNITO_REDIRECT_URI: !Ref CognitoRedirectUri
+
+  # 문제 조회
+  GetQuizFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/get-quiz
+      Handler: site.eello.sph.quiz.handler.GetQuizHandler::handleRequest
+      Events:
+        GetQuizApi:
+          Type: Api
+          Properties:
+            Path: /saa/quiz/{quizId}
+            Method: get
+            RestApiId: !Ref SphApi
+            Auth:
+              Authorizer: NONE
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref QuizTableName
+        - S3ReadPolicy:
+            BucketName: !Ref S3BucketName
+
+  # 사용자 정보 조회
+  GetUserInfoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/get-user-info
+      Handler: site.eello.sph.user.handler.GetUserInfoHandler::handleRequest
+      Events:
+        GetUserInfoApi:
+          Type: Api
+          Properties:
+            Path: /saa/user
+            Method: get
+            RestApiId: !Ref SphApi
+      Environment:
+        Variables:
+          COGNITO_APP_CLIENT_ID: !Ref CognitoAppClientId
+          COGNITO_DOMAIN: !Ref CognitoDomain
+          COGNITO_REDIRECT_URI: !Ref CognitoRedirectUri
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref BookmarkTableName
+
+  # 문제 북마크 토글
+  ToggleBookmarkFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/toggle-bookmark
+      Handler: site.eello.sph.quiz.handler.BookmarkQuizHandler::handleRequest
+      Events:
+        ToggleBookmarkApi:
+          Type: Api
+          Properties:
+            Path: /saa/quiz/{quizId}/bookmark
+            Method: post
+            RestApiId: !Ref SphApi
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BookmarkTableName

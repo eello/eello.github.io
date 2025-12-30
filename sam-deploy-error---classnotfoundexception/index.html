@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAM Deploy Error - ClassNotFoundException</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <!-- Highlight.js Themes -->
+    <link rel="stylesheet" id="hljs-theme-light"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" disabled>
+    <link rel="stylesheet" id="hljs-theme-dark"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" disabled>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+    <script>
+        // Theme initialization
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // Load initial hljs theme
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.getElementById(isDark ? 'hljs-theme-dark' : 'hljs-theme-light').removeAttribute('disabled');
+            hljs.highlightAll();
+            hljs.initLineNumbersOnLoad({ singleLine: true });
+        });
+    </script>
+</head>
+
+<body>
+    <header class="mobile-header">
+        <div class="mobile-logo">My Blog</div>
+        <button id="menu-toggle" class="menu-toggle">☰</button>
+    </header>
+
+    <!-- 왼쪽 사이드바: 카테고리 및 포스트 목록 -->
+    <aside id="sidebar" class="sidebar">
+        <h2 class="sidebar-title"><a href="../" class="sidebar-home-link">eello</a></h2>
+        <nav class="category-list">
+                <div class="category-item depth-1">
+                    <div class="category-name">Project</div>
+                    <ul class="post-list"></ul>
+                    
+                <div class="category-item depth-2">
+                    <div class="category-name">SPH</div>
+                    <ul class="post-list">
+                <li class="post-item">
+                    <a href="../sam-deploy-error---classnotfoundexception/" class="post-link active">SAM Deploy Error - ClassNotFoundException</a>
+                </li>
+            </ul>
+                    
+                </div>
+            
+                </div>
+            
+                <div class="category-item depth-1">
+                    <div class="category-name">개발</div>
+                    <ul class="post-list"></ul>
+                    
+                <div class="category-item depth-2">
+                    <div class="category-name">tech</div>
+                    <ul class="post-list">
+                <li class="post-item">
+                    <a href="../쿠팡-유출/" class="post-link ">쿠팡 유출</a>
+                </li>
+            </ul>
+                    
+                <div class="category-item depth-3">
+                    <div class="category-name">test</div>
+                    <ul class="post-list">
+                <li class="post-item">
+                    <a href="../디자인-테스트/" class="post-link ">design test</a>
+                </li>
+            </ul>
+                    
+                </div>
+            
+                </div>
+            
+                <div class="category-item depth-2">
+                    <div class="category-name">spring</div>
+                    <ul class="post-list">
+                <li class="post-item">
+                    <a href="../@transactional-이해하기/" class="post-link ">@Transactional 이해하기</a>
+                </li>
+            </ul>
+                    
+                </div>
+            
+                </div>
+            
+                <div class="category-item depth-1">
+                    <div class="category-name">Uncategorized</div>
+                    <ul class="post-list">
+                <li class="post-item">
+                    <a href="../sam-deploy-error---basepathmapping-create-failed/" class="post-link ">SAM Deploy Error - BasePathMapping Create Failed</a>
+                </li>
+            </ul>
+                    
+                </div>
+            </nav>
+
+        <div class="theme-toggle-container">
+            <button id="theme-toggle" class="theme-toggle-btn">
+                <span class="icon">🌓</span>
+                <span class="text">Switch to Dark Mode</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- 중앙 본문 영역 -->
+    <main class="main-wrapper">
+        <div class="content-container">
+            <article class="article-content">
+                <header class="article-header">
+                    <h1 class="article-title">SAM Deploy Error - ClassNotFoundException</h1>
+                    <div class="article-meta">
+                        <div>Published on 2025-12-30</div>
+                        <div>Category: Project > SPH</div>
+                    </div>
+                </header>
+
+                <section class="body">
+                    <h2 id="문제-상황">문제 상황</h2>
+<p><a href="../sam-deploy-error---basepathmapping-create-failed/">BasePathMapping Create Failed</a> 문제를 해결하는 과정에서 template.yaml 파일을 Lambda + Api Gateway와 BasePathMapping으로 나눠 배포했을 때
+API 요청 시 람다 함수에서 정의된 핸들러 클래스를 찾지 못하는 <code>ClassNotFoundException</code> 발생</p>
+<div class="code-block-wrapper">
+    <div class="code-block-header">
+        <span class="code-lang">json</span>
+        <span class="code-copy">Copy</span>
+    </div>
+    <pre class="code-block language-json"><code class="code-inner">{
+	&quot;timestamp&quot;: &quot;2025-12-02T01:43:29.091Z&quot;,
+	&quot;message&quot;: &quot;Class not found: site.eello.sph.auth.handler.AuthTokenHandler: java.lang.ClassNotFoundException\njava.lang.ClassNotFoundException: site.eello.sph.auth.handler.AuthTokenHandler\n\tat java.base/java.net.URLClassLoader.findClass(Unknown Source)\n\tat java.base/java.lang.ClassLoader.loadClass(Unknown Source)\n\tat java.base/java.lang.ClassLoader.loadClass(Unknown Source)\n\tat java.base/java.lang.Class.forName0(Native Method)\n\tat java.base/java.lang.Class.forName(Unknown Source)\n\tat java.base/java.lang.Class.forName(Unknown Source)\n\n&quot;,
+	&quot;level&quot;: &quot;ERROR&quot;
+}
+</code></pre>
+</div>
+<h3 id="템플릿-파일">템플릿 파일</h3>
+<ul>
+<li><strong>통합 템플릿(template.yaml)</strong>
+<img src="images/template.yaml" alt=""></li>
+<li><strong>분리 템플릿</strong>
+<ul>
+<li><strong>sph-api-stack.yaml</strong>
+<img src="images/sph-api-stack.yaml" alt=""></li>
+<li><strong>sph-domain-stack.yaml</strong>
+<img src="images/sph-domain-stack.yaml" alt=""></li>
+</ul>
+</li>
+</ul>
+<h3 id="배포-명령어">배포 명령어</h3>
+<div class="code-block-wrapper">
+    <div class="code-block-header">
+        <span class="code-lang">shell</span>
+        <span class="code-copy">Copy</span>
+    </div>
+    <pre class="code-block language-shell"><code class="code-inner"># API 스택(Lambda + API GW) 배포
+sam build --template-file sph-api-stack.yaml
+sam deploy --config-file samconfig-api.toml --template-file sph-api-stack.yaml
+
+# Domain 스택(BasePathMapping) 배포
+sam deploy --config-file samconfig-domain.toml --template-file sph-domain-stack.yaml
+</code></pre>
+</div>
+<h2 id="원인-파악">원인 파악</h2>
+<ul>
+<li>[x] <code>.aws-sam/build</code> 내에 빌드된 핸들러 클래스가 존재하는지 확인</li>
+<li>[x] 배포 시 정상적으로 빌드가 됐는지 확인하기 위해 Lambda 함수 콘솔에서 배포된 코드 zip 파일을 다운로드해 핸들러 클래스가 존재하는지 확인
+<ul>
+<li>하나로 배포했을 때와 비교하지 않고 분리해 배포했을 때 핸들러 클래스가 존재하는지만 확인함</li>
+</ul>
+</li>
+</ul>
+<p>template.yaml 하나로 배포했을 때는 정상적으로 동작하기 때문에 배포된 코드 zip 파일을 비교해 봤을 때 두 파일의 파일 구조도는 다음과 같다.</p>
+<ul>
+<li>
+<p>분리 템플릿(sph-api-stack.yaml)로 배포된 zip 파일 구조</p>
+<div class="code-block-wrapper">
+    <div class="code-block-header">
+        <span class="code-lang">text</span>
+        <span class="code-copy">Copy</span>
+    </div>
+    <pre class="code-block language-"><code class="code-inner">.
+├── build.gradle
+└── src
+    └── main
+        └── java
+            └── site
+                └── eello
+                    └── sph
+                        └── auth
+                            ├── dto
+                            │   ├── AuthTokenRequest.java
+                            │   └── AuthTokenResponse.java
+                            └── handler
+                                └── AuthTokenHandler.java
+</code></pre>
+</div>
+</li>
+<li>
+<p>통합 템플릿(template.yaml)로 배포된 zip 파일 구조</p>
+</li>
+</ul>
+<div class="code-block-wrapper">
+    <div class="code-block-header">
+        <span class="code-lang">text</span>
+        <span class="code-copy">Copy</span>
+    </div>
+    <pre class="code-block language-"><code class="code-inner">.
+├── lib
+│   ├── annotations-2.38.2.jar
+│   ├── apache-client-2.38.2.jar
+│   ├── ...
+│   └── utils-lite-2.38.2.jar
+├── META-INF
+│   └── MANIFEST.MF
+└── site
+    └── eello
+        └── sph
+            └── auth
+                ├── dto
+                │   ├── AuthTokenRequest.class
+                │   └── AuthTokenResponse.class
+                └── handler
+                    └── AuthTokenHandler.class
+</code></pre>
+</div>
+<p>zip 파일을 비교해봤을 때, template.yaml 하나로 배포했을 때는 빌드된 결과(.java → .class)가 zip 파일로 만들어져 배포되었고 분리해 배포했을 때는 gradle 빌드가 된게 아니라 소스코드(.java) 그대로 zip 파일로 만들어져 배포된 것을 알 수 있다. 컴파일된 핸들러 클래스가 없기 때문에 JVM에서 로드할 수 없어 발생한 것이다.</p>
+<h3 id="빌드된-결과가-아닌-소스코드-원본이-zip으로-배포되는-이유">빌드된 결과가 아닌 소스코드 원본이 Zip으로 배포되는 이유</h3>
+<p><code>sam deploy</code> 명령어 처럼 특정 템플릿 파일을 지정하지 않고 배포를 하게 되면 자동으로 template.yaml 파일을 찾아서 이를 바탕으로 배포하게 된다.
+이때, 중요한 점은 해당 template.yaml 파일은 <strong>프로젝트 루트에 존재하는 template.yaml이 아닌 .aws-sam/build/template.yaml</strong> 이라는 점이다.</p>
+<p>프로젝트 루트의 <code>template.yaml</code>과 <code>.aws-sam/build/template.yaml</code>은 용도가 다르다.</p>
+<ul>
+<li><code>template.yaml</code>: sam build할 때 사용되는 템플릿 파일</li>
+<li><code>.aws-sam/build/tmeplate.yaml</code>: sam deploy할 때 사용하는 템플릿 파일</li>
+</ul>
+<p>개발자가 직접 작성하는 프로젝트 루트의 <code>template.yaml</code>에 리소스 &gt; 함수를 보면 CodeUri 속성은 프로젝트 내에서 존재하는 함수 폴더(예: functions/auth-token)를 지정한다. aws build는 이 폴더(함수 프로젝트)를 기준으로 빌드하게 된다.</p>
+<p><code>.aws-sam/build/template.yaml</code>에서 똑같이 리소스 &gt; 함수를 보면 프로젝트 루트에 작성한 functions/auth-token과 같이 함수 프로젝트가 지정된 것이 아니라 AuthTokenFunction 처럼 빌드된 결과 만들어진 프로젝트 폴더를 가리키게 된다. <code>sam deploy</code>를 하게 되면 <code>.aws-sam/build/template.yaml</code>의 함수의 CodeUri를 보고 해당 프로젝트 폴더를 기준으로 Zip을 만들어서 배포하게 된다.</p>
+<p>지금까지 실행했던 deploy 명령어를 보면 <code>{shell} sam deploy --config-file samconfig-api.toml --template-file sph-api-stack.yaml</code>이다.
+여기서 보면 --template-file 옵션으로 따로 분리한 스택에 대한 템플릿 파일을 지정하고 있다. 하지만 해당 템플릿 파일은 sam build로 생성된게 아니라 개발자가 작성한 파일이고 각 함수에 대한 CodeUri 경로는 원본 소스코드가 존재하는 프로젝트 폴더(예: functions/auth-token)가 된다. 즉, 배포할 때 빌드된 폴더가 아닌 원본 프로젝트 폴더를 Zip으로 만들어 배포하기 때문에 컴파일된 핸들러 클래스가 없어 <code>ClassNotFoundException</code>이 발생하게 되는 것이다.</p>
+<div class="callout callout-note">
+            <div class="callout-header">
+                <span class="callout-icon"></span>
+                <div class="callout-title">NOTE</div>
+            </div>
+            <div class="callout-content">–template-file 옵션을 따로 작성하지 않으면 기본적으로 template.yaml 파일을 참조하게 되고 이때는 다음과 같은 순서로 template.yaml 파일을 찾아 사용하게 된다.
+<ol>
+<li><code>.aws-sam/build/template.yaml</code></li>
+<li>루트 디렉토리의 <code>template.yaml</code> 또는 <code>template.yml</code></li>
+</ol>
+<p>분리하기 전에는 알아서 처리되기 때문에 문제없이 배포가 가능한 것이었다.</p></div>
+        </div>
+<p>즉, 정확한 원인은 배포 시 CodeUri로 지정된 프로젝트 폴더를 Zip으로 만들어서 업로드하게 되는데 현재 사용되는 템플릿 파일의 CodeUri가 소스코드 원본이 포함된 함수 프로젝트의 경로를 가리키고 있어 원본 그대로 Zip이 만들어져 배포되기 때문이다.</p>
+<h2 id="해결">해결</h2>
+<p>원인을 파악했으니 해결 방법은 간단하다.</p>
+<h3 id="1-sam-deploy-시---template-file-옵션-지정-x">1. sam deploy 시 --template-file 옵션 지정 X</h3>
+<p>현재 문제가 deploy 시 --template-file 옵션으로 루트 디렉토리의 sph-api-stack.yaml을 지정하고 해당 파일에 CodeUri 부분이 원본 함수 프로젝트를 가리키고 있기 때문에 발생한 것이다. 따라서, 루트 디렉토리의 템플릿 파일이 아닌 빌드된 템플릿 파일을 지정해 빌드된 프로젝트 폴더를 가리키게 만들면 된다.</p>
+<p><code>sam build --template-file sph-api-stack.yaml</code>로 빌드를 하더라도 <code>.aws-sam/build</code> 안에 <code>template.yaml</code>이 생성된다.
+따라서 deploy 시 --template-file 옵션을 지정하지 않으면 기본적으로 <code>.aws-sam/build/template.yaml</code> 을 참조하게 되고 빌드된 템플릿 파일의 CodeUri는 빌드된 함수 프로젝트를 가리키게 되므로 오류를 해결할 수 있다.</p>
+<div class="code-block-wrapper">
+    <div class="code-block-header">
+        <span class="code-lang">shell</span>
+        <span class="code-copy">Copy</span>
+    </div>
+    <pre class="code-block language-shell"><code class="code-inner"># API 스택(Lambda + API GW) 배포
+# sam build 시에는 --template-file 옵션으로 sph-api-stack.yaml 지정 필요
+sam build --template-file sph-api-stack.yaml
+sam deploy --config-file samconfig-api.toml
+</code></pre>
+</div>
+<h3 id="2---template-file-옵션에서-명시적으로-aws-sambuildtemplateyaml-지정">2. --template-file 옵션에서 명시적으로 .aws-sam/build/template.yaml 지정</h3>
+<p><code>sam deploy --template-file .aws-sam/build/template.yaml</code>을 하게되면 배포할 때 SAM에 의해 빌드된 템플릿 파일을 사용하므로 빌드된 함수 프로젝트를 Zip 파일로 배포할 수 있게 된다.</p>
+
+                </section>
+            </article>
+
+            <!-- 오른쪽 사이드바: TOC -->
+            <aside class="toc-sidebar">
+                <h3 class="toc-title">ON THIS PAGE</h3>
+                <nav>
+                    <ul class="toc-list">
+                <li class="toc-item" style="margin-left: 0px">
+                    <a href="#문제-상황" class="toc-link">문제 상황</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 16px">
+                    <a href="#템플릿-파일" class="toc-link">템플릿 파일</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 16px">
+                    <a href="#배포-명령어" class="toc-link">배포 명령어</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 0px">
+                    <a href="#원인-파악" class="toc-link">원인 파악</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 16px">
+                    <a href="#빌드된-결과가-아닌-소스코드-원본이-zip으로-배포되는-이유" class="toc-link">빌드된 결과가 아닌 소스코드 원본이 Zip으로 배포되는 이유</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 0px">
+                    <a href="#해결" class="toc-link">해결</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 16px">
+                    <a href="#1-sam-deploy-시---template-file-옵션-지정-x" class="toc-link">1. sam deploy 시 --template-file 옵션 지정 X</a>
+                </li>
+            
+                <li class="toc-item" style="margin-left: 16px">
+                    <a href="#2---template-file-옵션에서-명시적으로-aws-sambuildtemplateyaml-지정" class="toc-link">2. --template-file 옵션에서 명시적으로 .aws-sam/build/template.yaml 지정</a>
+                </li>
+            </ul>
+                </nav>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeText = themeToggle.querySelector('.text');
+
+        function updateToggleButton(theme) {
+            themeText.textContent = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+        }
+
+        updateToggleButton(document.documentElement.getAttribute('data-theme'));
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateToggleButton(newTheme);
+
+            // Toggle hljs themes
+            document.getElementById('hljs-theme-light').disabled = newTheme === 'dark';
+            document.getElementById('hljs-theme-dark').disabled = newTheme === 'light';
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 &&
+                !sidebar.contains(e.target) &&
+                !menuToggle.contains(e.target) &&
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Code Copy Implementation
+        document.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('code-copy')) {
+                const btn = e.target;
+                const wrapper = btn.closest('.code-block-wrapper');
+                const codeInner = wrapper.querySelector('.code-inner');
+
+                // Collect text from each code-line to ensure correct line breaks
+                const codeCells = Array.from(codeInner.querySelectorAll('.hljs-ln-code'));
+                const textToCopy = codeCells.length > 0
+                    ? codeCells.map(cell => cell.innerText).join('\n')
+                    : codeInner.innerText;
+
+                try {
+                    await navigator.clipboard.writeText(textToCopy);
+
+                    // Visual feedback
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('success');
+
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.classList.remove('success');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy code:', err);
+                    btn.textContent = 'Error';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
