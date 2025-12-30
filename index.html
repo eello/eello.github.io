@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}}</title>
+    <title>eello blog</title>
     <link rel="stylesheet" href="./styles/main.css">
     <!-- Highlight.js Themes -->
     <link rel="stylesheet" id="hljs-theme-light"
@@ -31,7 +31,7 @@
 
 <body>
     <header class="mobile-header">
-        <div class="mobile-logo">My Blog</div>
+        <div class="mobile-logo">eello blog</div>
         <button id="menu-toggle" class="menu-toggle">☰</button>
     </header>
 
@@ -119,31 +119,54 @@
                 <section class="body">
                     
             <div class="landing-page">
+                <div class="landing-header">
+                    <h1 class="landing-title">eello blog</h1>
+                </div>
                 <div class="post-list-container">
                     
                         <a href="./sam-deploy-error---classnotfoundexception/" class="post-entry">
-                            <span class="post-entry-title">SAM Deploy Error - ClassNotFoundException</span>
-                            <span class="post-entry-date">2025-12-30</span>
+                            <div class="post-entry-info">
+                                <span class="post-entry-category">Project > SPH</span>
+                                <span class="post-entry-title">SAM Deploy Error - ClassNotFoundException</span>
+                                <p class="post-entry-excerpt">문제 상황 BasePathMapping Create Failed 문제를 해결하는 과정에서 template.yaml 파일을 Lambda + Api Gateway와 BasePathMapping으로 나눠 배포했을 때 API 요청 시 람다 함수에서 정의된 핸들러 클래스를 찾지 못하는 ClassNotFoundException 발생...</p>
+                                <span class="post-entry-date">2025-12-30</span>
+                            </div>
                         </a>
                     
                         <a href="./디자인-테스트/" class="post-entry">
-                            <span class="post-entry-title">design test</span>
-                            <span class="post-entry-date">2025-12-30</span>
+                            <div class="post-entry-info">
+                                <span class="post-entry-category">개발 > tech > test</span>
+                                <span class="post-entry-title">design test</span>
+                                <p class="post-entry-excerpt">콜아웃 [!warning] --template-file 옵션을 따로 작성하지 않으면 기본적으로 template.yaml 파일을 참조하게 되고 이때는 다음과 같은 순서로 template.yaml 파일을 찾아 사용하게 된다. 1. .aws-sam/build/template.yaml 2. 루트 디렉토리의 templ...</p>
+                                <span class="post-entry-date">2025-12-30</span>
+                            </div>
                         </a>
                     
                         <a href="./쿠팡-유출/" class="post-entry">
-                            <span class="post-entry-title">쿠팡 유출</span>
-                            <span class="post-entry-date">2025-12-15</span>
+                            <div class="post-entry-info">
+                                <span class="post-entry-category">개발 > tech</span>
+                                <span class="post-entry-title">쿠팡 유출</span>
+                                <p class="post-entry-excerpt">최근 쿠팡에서 이용자의 약 3,300만 명의 개인정보가 유출되는 사고가 발생했다. 알려진 이 사고의 원인은 데이터베이스를 직접 접근해 이루어진 것이 아닌 인증 토큰을 사용해 사용자의 정보를 조회한 것이다. 퇴사한 전직원은 인증 토큰을 서명할 수 있는 키를 유출해 인증 토큰을 생성하고 이렇게 만들어진 토큰을 사용해 쿠팡 ...</p>
+                                <span class="post-entry-date">2025-12-15</span>
+                            </div>
                         </a>
                     
                         <a href="./sam-deploy-error---basepathmapping-create-failed/" class="post-entry">
-                            <span class="post-entry-title">SAM Deploy Error - BasePathMapping Create Failed</span>
-                            <span class="post-entry-date">2025-12-01 11:07:45</span>
+                            <div class="post-entry-info">
+                                <span class="post-entry-category">Uncategorized</span>
+                                <span class="post-entry-title">SAM Deploy Error - BasePathMapping Create Failed</span>
+                                <p class="post-entry-excerpt">문제 SAM 프로젝트(Lambda + API Gateway) 배포 중(sam deploy) BasePathMapping을 생성하는 과정에서 다음과 같은 에러 발생 CREATE_FAILED AWS::ApiGateway::BasePathMapping BasePathMapping Resource handler retu...</p>
+                                <span class="post-entry-date">2025-12-01 11:07:45</span>
+                            </div>
                         </a>
                     
                         <a href="./@transactional-이해하기/" class="post-entry">
-                            <span class="post-entry-title">@Transactional 이해하기</span>
-                            <span class="post-entry-date">2025-04-24 00:36:55</span>
+                            <div class="post-entry-info">
+                                <span class="post-entry-category">개발 > spring</span>
+                                <span class="post-entry-title">@Transactional 이해하기</span>
+                                <p class="post-entry-excerpt">먼저, 스프링부트와 JPA에서 데이터를 저장하는 다음과 같은 코드를 보자. java @Service @RequiredArgsConstructor public class UserService { private final UserRepository userRepository; p...</p>
+                                <span class="post-entry-date">2025-04-24 00:36:55</span>
+                            </div>
                         </a>
                     
                 </div>

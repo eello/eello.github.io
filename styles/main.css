@@ -9,7 +9,8 @@
     --hover-bg: #f2f2f7;
     --active-bg: #fff0f3;
     /* Softer pink tint for active background */
-    --sidebar-width: 300px;
+    --sidebar-width: 340px;
+    /* Widened sidebar */
     --toc-width: 240px;
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --transition-speed: 0.3s;
@@ -133,6 +134,9 @@ body {
     padding-left: 8px;
     display: flex;
     align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .depth-1>.category-name {
@@ -207,6 +211,9 @@ body {
     font-size: 0.9rem;
     color: var(--text-main);
     transition: all 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .post-link:hover {
@@ -640,6 +647,12 @@ body {
     padding-left: 16px !important;
 }
 
+/* Ensure single-line code blocks render correctly */
+.hljs-ln {
+    width: 100%;
+    border-collapse: collapse;
+}
+
 /* Inline code */
 .article-content :not(pre)>code {
     background-color: rgba(175, 184, 193, 0.12);
@@ -655,43 +668,104 @@ body {
     color: #ff8e8e;
 }
 
-/* Landing Page Styles - CLEAN BLOG LIST */
-.landing-page {
+/* Landing Page Styles - HIGH SPECIFICITY OVERRIDES */
+.article-content .landing-page {
     animation: fadeIn 0.5s ease-out;
     max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
 }
 
-.post-list-container {
+.article-content .landing-header {
+    margin-bottom: 64px;
+}
+
+.article-content .landing-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+.article-content .post-list-container {
     display: flex;
     flex-direction: column;
 }
 
-.post-entry {
+.article-content .post-entry {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 32px 24px !important;
+    margin: 0 -24px 0 -24px !important;
+    /* Removed vertical margin */
+    text-decoration: none !important;
+    border: none !important;
+    background: transparent !important;
+    border-radius: 16px !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.article-content .post-entry:last-child {
+    margin-bottom: 0 !important;
+}
+
+.article-content .post-entry:hover {
+    background-color: var(--active-bg) !important;
+    opacity: 1 !important;
+    transform: translateY(-2px);
+}
+
+.article-content .post-entry-info {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 16px 0;
-    text-decoration: none;
-    border-bottom: 1px solid var(--border-color);
-    transition: opacity 0.2s;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
 }
 
-.post-entry:hover {
-    opacity: 0.7;
+.article-content .post-entry-category {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 1;
+    margin: 0 !important;
+    border: none !important;
 }
 
-.post-entry-title {
-    font-size: 1.15rem;
-    font-weight: 600;
+.article-content .post-entry-title {
+    font-size: 1.7rem;
+    font-weight: 800;
     color: var(--text-main);
-    flex: 1;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin: 0 !important;
+    border: none !important;
 }
 
-.post-entry-date {
-    font-size: 0.9rem;
-    font-family: ui-monospace, monospace;
+.article-content .post-entry-excerpt {
+    font-size: 1.05rem;
     color: var(--text-muted);
-    margin-left: 24px;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    opacity: 0.85;
+    margin: 0 !important;
+    border: none !important;
+}
+
+.article-content .post-entry-date {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    opacity: 0.6;
+    font-family: inherit;
+    margin: 0 !important;
+    border: none !important;
 }
 
 /* Responsive Styles */
@@ -727,14 +801,9 @@ body {
         display: none;
     }
 
-    .post-entry {
-        flex-direction: column-reverse;
-        align-items: flex-start;
-        gap: 4px;
-    }
+    /* Post entries spacing handled by important margins above */
 
     .post-entry-date {
-        margin-left: 0;
         font-size: 0.8rem;
     }
 }
