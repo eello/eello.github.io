@@ -89,12 +89,12 @@ body {
 }
 
 .sidebar-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-muted);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-main);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
     padding-left: 8px;
 }
 
@@ -260,7 +260,7 @@ body {
 .main-wrapper {
     flex: 1;
     overflow-y: auto;
-    padding: 80px 40px 0;
+    padding: 40px 40px 0;
     scroll-behavior: smooth;
     position: relative;
 }
@@ -701,14 +701,33 @@ body {
     margin: 0 -24px 0 -24px !important;
     /* Removed vertical margin */
     text-decoration: none !important;
+    /* border-bottom: 1px solid rgba(128, 128, 128, 0.08) !important; REMOVED */
     border: none !important;
     background: transparent !important;
     border-radius: 16px !important;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    /* For pseudo-element divider */
+}
+
+/* Straight Divider using Pseudo-element */
+.article-content .post-entry::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 24px;
+    right: 24px;
+    height: 1px;
+    background-color: rgba(128, 128, 128, 0.08);
+    pointer-events: none;
 }
 
 .article-content .post-entry:last-child {
     margin-bottom: 0 !important;
+}
+
+.article-content .post-entry:last-child::after {
+    display: none;
 }
 
 .article-content .post-entry:hover {
@@ -766,6 +785,18 @@ body {
     font-family: inherit;
     margin: 0 !important;
     border: none !important;
+}
+
+/* Viewport-based Centering for Large Screens */
+@media (min-width: 1560px) {
+    .article-content .landing-page {
+        transform: translateX(-170px);
+        /* 
+           Compensate for sidebar (340px) to center relative to viewport.
+           Center of Content (relative to Wrapper) = 50vw + 170px.
+           Shift left by 170px => 50vw (True Center).
+        */
+    }
 }
 
 /* Responsive Styles */
