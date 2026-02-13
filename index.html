@@ -1,214 +1,179 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eello blog</title>
-    <link rel="stylesheet" href="./styles/main.css?v=1768983303197">
-    <!-- Highlight.js Themes -->
-    <link rel="stylesheet" id="hljs-theme-light"
-        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" disabled>
-    <link rel="stylesheet" id="hljs-theme-dark"
-        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" disabled>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
-    <script>
-        // Theme initialization
-        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        document.documentElement.setAttribute('data-theme', savedTheme);
-
-        // Load initial hljs theme
-        document.addEventListener('DOMContentLoaded', () => {
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            document.getElementById(isDark ? 'hljs-theme-dark' : 'hljs-theme-light').removeAttribute('disabled');
-            hljs.highlightAll();
-            hljs.initLineNumbersOnLoad({ singleLine: true });
-        });
-    </script>
+    <link rel="stylesheet" href="style.css">
 </head>
-
-<body>
-    <header class="mobile-header">
-        <div class="mobile-logo">eello blog</div>
-        <button id="menu-toggle" class="menu-toggle">☰</button>
-    </header>
-
-    <!-- 왼쪽 사이드바: 카테고리 및 포스트 목록 -->
-    <aside id="sidebar" class="sidebar">
-        <h2 class="sidebar-title"><a href="./" class="sidebar-home-link">eello</a></h2>
-        <nav class="category-list">
-                <div class="category-item depth-1">
-                    <div class="category-name">데이터베이스</div>
-                    <ul class="post-list">
-                <li class="post-item">
-                    <a href="./데이터베이스-복제(replication)/" class="post-link ">데이터베이스 복제(Replication)</a>
-                </li>
-            </ul>
-                    
-                </div>
-            
-                <div class="category-item depth-1">
-                    <div class="category-name">infra</div>
-                    <ul class="post-list"></ul>
-                    
-                <div class="category-item depth-2">
-                    <div class="category-name">로드 밸런서</div>
-                    <ul class="post-list">
-                <li class="post-item">
-                    <a href="./로드-밸런서-알고리즘/" class="post-link ">로드 밸런서 알고리즘</a>
-                </li>
-            </ul>
-                    
-                </div>
-            
-                </div>
-            
-                <div class="category-item depth-1">
-                    <div class="category-name">issue</div>
-                    <ul class="post-list">
-                <li class="post-item">
-                    <a href="./쿠팡-유출/" class="post-link ">쿠팡 유출</a>
-                </li>
-            </ul>
-                    
-                </div>
-            </nav>
-
-        <div class="theme-toggle-container">
-            <button id="theme-toggle" class="theme-toggle-btn">
-                <span class="icon">🌓</span>
-                <span class="text">Switch to Dark Mode</span>
+<body class="light-mode">
+    <header>
+        <div class="header-inner">
+            <div class="header-left">
+                <button id="sidebar-toggle" aria-label="Toggle Sidebar">☰</button>
+                <h1><a href="./index.html">eello blog</a></h1>
+            </div>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                <span class="toggle-track">
+                    <span class="toggle-icon sun">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    </span>
+                    <span class="toggle-icon moon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </span>
+                    <span class="toggle-thumb"></span>
+                </span>
             </button>
         </div>
-    </aside>
-
-    <!-- 중앙 본문 영역 -->
-    <main class="main-wrapper">
-        <div class="content-container">
-            <article class="article-content">
-                
-
-                <section class="body">
+    </header>
+    <div class="container main-layout">
+        <aside class="sidebar" id="sidebar">
+            <button id="sidebar-close" aria-label="Close Sidebar">×</button>
+            <div class="sidebar-inner">
+                <h3>Categories</h3>
+                <ul class="category-list">
                     
-            <div class="landing-page">
-                <div class="landing-header">
-                    <h1 class="landing-title">eello blog</h1>
-                </div>
-                <div class="post-list-container">
-                    
-                        <a href="./데이터베이스-복제(replication)/" class="post-entry">
-                            <div class="post-entry-info">
-                                <span class="post-entry-category">데이터베이스</span>
-                                <span class="post-entry-title">데이터베이스 복제(Replication)</span>
-                                <p class="post-entry-excerpt">데이터베이스 복제(Replication) 기술 총정리: 개념부터 아키텍처까지 서비스의 규모가 커지면 단일 데이터베이스(DB) 서버만으로는 성능과 안정성을 보장할 수 없다. 이때 필수적으로 도입되는 기술이 바로 데이터베이스 복제(Replication)다. 복제 기술의 본질과 이를 활용한 다중화 전략을 정리해본다. 1....</p>
-                                <span class="post-entry-date">2026-01-21</span>
-                            </div>
-                        </a>
-                    
-                        <a href="./로드-밸런서-알고리즘/" class="post-entry">
-                            <div class="post-entry-info">
-                                <span class="post-entry-category">infra > 로드 밸런서</span>
-                                <span class="post-entry-title">로드 밸런서 알고리즘</span>
-                                <p class="post-entry-excerpt">기초 알고리즘 정적 알고리즘 연결된 서버의 현재 상태를 고려하지 않고 정해진 규칙에 따라 요청을 분배 라운드 로빈(Round Robin) - 요청을 순차적으로 서버에 할당하는 방식 - 모든 서버의 사양이 동일하고 세션이 짧은 서비스에 적합 가중치 라운드 로빈(Weighted Round Robin) - 각 서버에...</p>
-                                <span class="post-entry-date">2026-01-19</span>
-                            </div>
-                        </a>
-                    
-                        <a href="./쿠팡-유출/" class="post-entry">
-                            <div class="post-entry-info">
-                                <span class="post-entry-category">issue</span>
-                                <span class="post-entry-title">쿠팡 유출</span>
-                                <p class="post-entry-excerpt">최근 쿠팡에서 이용자의 약 3,300만 명의 개인정보가 유출되는 사고가 발생했다. 알려진 이 사고의 원인은 데이터베이스를 직접 접근해 이루어진 것이 아닌 인증 토큰을 사용해 사용자의 정보를 조회한 것이다. 퇴사한 전직원은 인증 토큰을 서명할 수 있는 키를 유출해 인증 토큰을 생성하고 이렇게 만들어진 토큰을 사용해 쿠팡 ...</p>
-                                <span class="post-entry-date">2025-12-15</span>
-                            </div>
-                        </a>
-                    
-                </div>
+        <li><a href="./index.html" class="category-all-link">All Posts <span class="count">(2)</span></a></li>
+        <li><a href="?category=%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98">아키텍처 <span class="count">(1)</span></a></li>
+<li><a href="?category=%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98">알고리즘 <span class="count">(1)</span></a></li>
+    
+                </ul>
             </div>
+        </aside>
+        <main class="content">
+            <ul class="post-list" id="post-list">
+                
+            <li data-category="아키텍처">
+                <div class="post-meta">
+                    <span class="post-category">아키텍처</span>
+                    <span class="post-date-divider">·</span>
+                    <span class="post-date">2026-02-13</span>
+                </div>
+                <h2 class="post-title"><a href="채팅 시스템 설계 - 단일 서버/">단일 서버 채팅 시스템 설계</a></h2>
+                <p class="post-excerpt">카카오톡처럼 1:1 혹은 소규모 인원이 채팅하는 시스템을 단일 서버 기준으로 설계</p>
+            </li>
         
-                </section>
-            </article>
 
-            <!-- 오른쪽 사이드바: TOC -->
-            
-        </div>
-    </main>
-
+            <li data-category="알고리즘">
+                <div class="post-meta">
+                    <span class="post-category">알고리즘</span>
+                    <span class="post-date-divider">·</span>
+                    <span class="post-date">2026-02-12</span>
+                </div>
+                <h2 class="post-title"><a href="BOJ 큐빙 - Kotlin/">큐빙 풀이 - Kotlin</a></h2>
+                <p class="post-excerpt">BOJ 플레티넘 5 - 큐빙 Kotlin 풀이</p>
+            </li>
+        
+            </ul>
+        </main>
+    </div>
     <script>
         const themeToggle = document.getElementById('theme-toggle');
-        const themeText = themeToggle.querySelector('.text');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebarClose = document.getElementById('sidebar-close');
+        const sidebar = document.getElementById('sidebar');
+        const body = document.body;
+        const postList = document.getElementById('post-list');
 
-        function updateToggleButton(theme) {
-            themeText.textContent = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+        // 1. Check localStorage
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            body.className = savedTheme;
+        } else {
+            // 2. Check system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                body.className = 'dark-mode';
+            } else {
+                body.className = 'light-mode';
+            }
         }
 
-        updateToggleButton(document.documentElement.getAttribute('data-theme'));
-
         themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateToggleButton(newTheme);
-
-            // Toggle hljs themes
-            document.getElementById('hljs-theme-light').disabled = newTheme === 'dark';
-            document.getElementById('hljs-theme-dark').disabled = newTheme === 'light';
+            if (body.classList.contains('light-mode')) {
+                body.classList.replace('light-mode', 'dark-mode');
+                localStorage.setItem('theme', 'dark-mode');
+            } else {
+                body.classList.replace('dark-mode', 'light-mode');
+                localStorage.setItem('theme', 'light-mode');
+            }
         });
 
-        // Mobile menu toggle
-        const menuToggle = document.getElementById('menu-toggle');
-        const sidebar = document.getElementById('sidebar');
+        // Sidebar logic
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+        }
 
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-        });
+        sidebarToggle.addEventListener('click', toggleSidebar);
+        
+        if (sidebarClose) {
+            sidebarClose.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+            });
+        }
 
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 &&
-                !sidebar.contains(e.target) &&
-                !menuToggle.contains(e.target) &&
-                sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
-            }
-        });
-
-        // Code Copy Implementation
-        document.addEventListener('click', async (e) => {
-            if (e.target.classList.contains('code-copy')) {
-                const btn = e.target;
-                const wrapper = btn.closest('.code-block-wrapper');
-                const codeInner = wrapper.querySelector('.code-inner');
-
-                // Collect text from each code-line to ensure correct line breaks
-                const codeCells = Array.from(codeInner.querySelectorAll('.hljs-ln-code'));
-                const textToCopy = codeCells.length > 0
-                    ? codeCells.map(cell => cell.innerText).join('\n')
-                    : codeInner.innerText;
-
-                try {
-                    await navigator.clipboard.writeText(textToCopy);
-
-                    // Visual feedback
-                    const originalText = btn.textContent;
-                    btn.textContent = 'Copied!';
-                    btn.classList.add('success');
-
-                    setTimeout(() => {
-                        btn.textContent = originalText;
-                        btn.classList.remove('success');
-                    }, 2000);
-                } catch (err) {
-                    console.error('Failed to copy code:', err);
-                    btn.textContent = 'Error';
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target) && sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
                 }
             }
         });
+
+        // Category Filtering
+        function filterPosts() {
+            const params = new URLSearchParams(window.location.search);
+            const category = params.get('category');
+            const posts = Array.from(postList.getElementsByTagName('li'));
+            
+            // Update active state in category list
+            const catLinks = document.querySelectorAll('.category-list a');
+            catLinks.forEach(link => {
+                // Check if it's the "All Posts" link
+                if (link.classList.contains('category-all-link')) {
+                    if (!category) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                } else {
+                    const linkCat = new URL(link.href, window.location.origin).searchParams.get('category');
+                    if (linkCat === category) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                }
+            });
+
+            let visiblePosts = [];
+
+            if (category) {
+                for (let post of posts) {
+                    const postCat = post.getAttribute('data-category');
+                    if (postCat === category) {
+                        post.style.display = '';
+                        visiblePosts.push(post);
+                    } else {
+                        post.style.display = 'none';
+                    }
+                }
+            } else {
+                for (let post of posts) {
+                    post.style.display = '';
+                    visiblePosts.push(post);
+                }
+            }
+
+            // Fix dynamic border for the last visible item
+            posts.forEach(post => post.classList.remove('last-visible'));
+            if (visiblePosts.length > 0) {
+                visiblePosts[visiblePosts.length - 1].classList.add('last-visible');
+            }
+        }
+
+        // Initial filter on load
+        filterPosts();
     </script>
 </body>
-
 </html>
