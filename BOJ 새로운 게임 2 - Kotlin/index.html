@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>새로운 게임 2 풀이 - Kotlin - eello blog</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body class="light-mode">
+    <header>
+        <div class="header-inner">
+            <div class="header-left">
+                <h1><a href="../index.html">eello blog</a></h1>
+            </div>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                <span class="toggle-track">
+                    <span class="toggle-icon sun">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    </span>
+                    <span class="toggle-icon moon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </span>
+                    <span class="toggle-thumb"></span>
+                </span>
+            </button>
+        </div>
+    </header>
+    <div class="container">
+        <main>
+            <article>
+                <h1>새로운 게임 2 풀이 - Kotlin</h1>
+                <div class="article-meta">
+                    <span>2026-02-26</span>
+                </div>
+                <h3>조건 정리</h3>
+<ul>
+<li>게임판 크기: N x N(4 &#x3C;= N &#x3C;= 12)</li>
+<li>1 &#x3C;= 말 번호 &#x3C;= K &#x3C;= 10</li>
+<li>말 위에 말이 올라갈 수 있음</li>
+<li>체스판의 각 칸은 흰색, 빨간색, 파란색 중 하나</li>
+<li>말의 이동방향: 위, 아래, 왼쪽, 오른쪽</li>
+<li>말의 이동 순서: 말의 번호 오름차순 순(1, 2, 3, ... , K)</li>
+<li>턴 진행 중 말이 4개 이상 쌓이는 순간 게임 종료</li>
+<li>말의 이동
+<ul>
+<li>이동하려는 칸이 흰색인 경우
+<ul>
+<li>그 칸으로 이동, 그 칸에 이미 말이 존재하는 경우 가장 위에 올림</li>
+<li>말의 위에 다른 말이 있는 경우 해당 말과 그 위에 있는 모든 말이 함께 이동</li>
+</ul>
+</li>
+<li>빨간색인 경우
+<ul>
+<li>이동한 후 해당 말과 그 위에 있는 모든 말의 쌓여있는 순서를 반대로 전환</li>
+<li>예: A, D, F, G가 이동하고, 이동하려는 칸에 말이 E, C, B로 있는 경우에는 E, C, B, G, F, D, A</li>
+</ul>
+</li>
+<li>파란색이거나 체스판을 벗어나는 경우
+<ul>
+<li>말의 이동 방향을 반대로 하고 한 칸 이동, 만약 이동 방향을 반대로 한 후 이동하려는 칸이 파란색인 경우에는 이동하지 않고 가만히</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>풀이 계획</h3>
+<ul>
+<li>이동 방향 <code>enum class Direction(val r: Int, val c: Int) { U(), R(), D(), L() }</code>
+<ul>
+<li>반대 방향을 리턴하는 함수: <code>Direction.reverse(): Direction</code></li>
+</ul>
+</li>
+<li>말: <code>class ChessPiece(val id: Int, var r: Int, var c: Int, var d: Direction)</code>
+<ul>
+<li>0 &#x3C;= id = 말 번호-1 &#x3C;= K-1</li>
+</ul>
+</li>
+<li>체스: <code>class Chess(val board: Array&#x3C;IntArray>, val pieces: Array&#x3C;ChessPiece>)</code>
+<ul>
+<li>각 칸에 존재하는 말을 관리하기 위한 자료구조: <strong>Deque</strong> or <strong>Stack</strong>
+<ul>
+<li><code>state = Array(n) { Array(n) { ArrayDeque&#x3C;ChessPiece>() } }</code></li>
+<li>인덱스: 0 ← 아래 | 위 → lastIndex</li>
+</ul>
+</li>
+<li>말의 이동
+<pre><code class="hljs language-kotlin"><span class="hljs-comment">// id번째 말 이동</span>
+<span class="hljs-keyword">val</span> temp = ArrayDeque&#x3C;ChessPiece>() <span class="hljs-comment">// 이동해야 할 말 관리</span>
+
+<span class="hljs-keyword">val</span> piece = pieces[id]
+<span class="hljs-keyword">var</span> nr = piece.r + piece.d.r
+<span class="hljs-keyword">var</span> nc = piece.c + piece.d.c
+
+<span class="hljs-keyword">if</span> ([nr, nc]범위를 벗어나거나 || board[nr][nc] == 파란색) {
+	piece.d = piece.d.reverse()
+	nr = piece.r + piece.d.r
+	nc = piece.c + piece.d.c
+	
+	<span class="hljs-comment">// 풀이 후 추가 //</span>
+	<span class="hljs-keyword">if</span> ([nr, nc]가 범위를 벗어나거나 || board[nr][nc] == 파란색) {
+		<span class="hljs-keyword">return</span>
+	}
+}
+
+<span class="hljs-comment">// id번째 말 위에 올라간 모든 말 제거 및 이동해야할 말에 저장</span>
+<span class="hljs-keyword">while</span> (state[piece.r][piece.c] != piece) {
+	temp.addFirst(state[piece.r][piece.c].removeLast())
+}
+temp.addFirst(state[piece.r][piece.c].removeLast()) <span class="hljs-comment">// id번째 말 제거 및 이동해야할 말에 추가</span>
+
+<span class="hljs-keyword">while</span> (temp.isNotEmpty()) {
+	<span class="hljs-keyword">val</span> p = <span class="hljs-keyword">if</span> (board[nr][nc] == 흰색) temp.removeFirst() <span class="hljs-keyword">else</span> temp.removeLast() <span class="hljs-comment">// borad[nr][nc] == 빨간색인 경우 위아래 전환</span>
+	
+	<span class="hljs-comment">// 말의 위치 업데이트</span>
+	p.r = nr
+	p.c = nc
+	
+	state[nr][nc].addLast(p) <span class="hljs-comment">// 체스판 상태 업데이트</span>
+}
+</code></pre>
+</li>
+</ul>
+</li>
+<li>시간복잡도: <code>O(K)</code>
+<ul>
+<li>최대 1000번(턴)</li>
+<li>x K(한 턴에 모든 말 이동, 최대 10)</li>
+<li>x 6(이동해야할 말 + 업힌 모든 말 이동 = 최대 3개, 말 한개당 (add, remove)을 하므로 x2 = 6)</li>
+<li>= O(K) = 최대 60,000번</li>
+</ul>
+</li>
+</ul>
+<h3>풀이</h3>
+<h4>enum class Direction</h4>
+<pre><code class="hljs language-kotlin"><span class="hljs-keyword">private</span> <span class="hljs-keyword">enum</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Direction</span>(<span class="hljs-keyword">val</span> r: <span class="hljs-built_in">Int</span>, <span class="hljs-keyword">val</span> c: <span class="hljs-built_in">Int</span>) {  
+    RIGHT(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>),  
+    LEFT(<span class="hljs-number">0</span>, -<span class="hljs-number">1</span>),  
+    UP(-<span class="hljs-number">1</span>, <span class="hljs-number">0</span>),  
+    DOWN(<span class="hljs-number">1</span>, <span class="hljs-number">0</span>),  
+    ;  
+  
+    <span class="hljs-keyword">lateinit</span> <span class="hljs-keyword">var</span> reverse: Direction  
+  
+    <span class="hljs-keyword">companion</span> <span class="hljs-keyword">object</span> {  
+        <span class="hljs-keyword">init</span> {  
+            UP.reverse = DOWN  
+            DOWN.reverse = UP  
+            LEFT.reverse = RIGHT  
+            RIGHT.reverse = LEFT  
+        }  
+  
+        <span class="hljs-keyword">operator</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">get</span><span class="hljs-params">(ordinal: <span class="hljs-type">Int</span>)</span></span> = entries[ordinal]  
+    }  
+}
+</code></pre>
+<ul>
+<li>반대 방향으로 전환을 쉽게 하기위해 reverse 속성을 추가</li>
+<li><code>operator fun get</code>을 추가해 방향 순서에 따라 인덱스처럼 접근</li>
+</ul>
+<div class="callout callout-note" data-callout="note">
+<div class="callout-title"><span class="callout-icon"></span><strong>일반 init vs companion object의 init</strong></div>
+<p>일반 init: 각 방향(UP, DOWN 등)이 만들어질 때마다 실행<br>
+companion object의 init: Direction 클래스 전체가 준비 끝난 후 딱 한번 실행되므로 이미 모든 방향이 존재하므로 안전</p>
+</div>
+<h4>class Chess</h4>
+<h5>프로퍼티 &#x26; 초기화</h5>
+<pre><code class="hljs language-kotlin"><span class="hljs-keyword">private</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Chess</span>(<span class="hljs-keyword">val</span> board: Array&#x3C;IntArray>, <span class="hljs-keyword">val</span> pieces: Array&#x3C;Piece>) {  
+  
+    <span class="hljs-keyword">val</span> n = board.size  
+    <span class="hljs-keyword">val</span> state = Array(n) { Array(n) { ArrayDeque&#x3C;Piece>() } }  
+  
+    <span class="hljs-keyword">init</span> {  
+        pieces.forEach { p -> state[p.r][p.c].addLast(p) }  
+    }
+}
+</code></pre>
+<ul>
+<li>풀이 계획처럼 체스 말의 위치를 Deque으로 관리 (Stack 처럼 사용)</li>
+<li><code>init</code>에서 최초 체스 말의 위치 세팅</li>
+</ul>
+<h5>게임 플레이 함수: play()</h5>
+<pre><code class="hljs language-kotlin"><span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">play</span><span class="hljs-params">()</span></span>: <span class="hljs-built_in">Int</span> {  
+        <span class="hljs-keyword">for</span> (turn <span class="hljs-keyword">in</span> <span class="hljs-number">1.</span><span class="hljs-number">.1000</span>) {  
+            <span class="hljs-keyword">for</span> (piece <span class="hljs-keyword">in</span> pieces) {  
+                <span class="hljs-keyword">if</span> (move(piece) >= <span class="hljs-number">4</span>) {  
+                    <span class="hljs-keyword">return</span> turn  
+                }  
+            }  
+        }  
+  
+        <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>  
+    }  
+</code></pre>
+<ul>
+<li>turn을 1-1000을 반복하며 체스 말을 순차적으로 이동</li>
+<li>한 체스 말의 이동이 끝난 후 이동한 칸에 4개(<code>move()</code>의 반환 값) 이상의 말이 있다면 즉시 turn 리턴</li>
+<li>1000번의 turn 이후에도 4개 이상이 쌓이지 않았으면 -1 리턴</li>
+</ul>
+<h5>체스 말 이동 함수: move()</h5>
+<pre><code class="hljs language-kotlin"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">move</span><span class="hljs-params">(piece: <span class="hljs-type">Piece</span>)</span></span>: <span class="hljs-built_in">Int</span> {  
+	<span class="hljs-keyword">val</span> temp = ArrayDeque&#x3C;Piece>()  
+	<span class="hljs-keyword">var</span> (nr, nc) = piece.getNextPos()  
+
+	<span class="hljs-keyword">if</span> (!isInBounds(nr, nc) || board[nr][nc] == BLUE) {  
+		piece.reverseDirection()  
+		<span class="hljs-keyword">val</span> (rnr, rnc) = piece.getNextPos()  
+
+		<span class="hljs-keyword">if</span> (!isInBounds(rnr, rnc) || board[rnr][rnc] == BLUE) {  
+			<span class="hljs-comment">// 양쪽 모두 파란색 혹은 한쪽 파란색 + 한쪽 범위 밖이면  </span>
+			<span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>  
+		}  
+
+		nr = rnr  
+		nc = rnc  
+	}  
+
+	<span class="hljs-keyword">while</span> (state[piece.r][piece.c].isNotEmpty()) {  
+		<span class="hljs-keyword">val</span> p = state[piece.r][piece.c].removeLast()  
+		temp.addFirst(p)  
+
+		<span class="hljs-keyword">if</span> (p.id == piece.id) {  
+			<span class="hljs-keyword">break</span>  
+		}  
+	}  
+
+	<span class="hljs-keyword">while</span> (temp.isNotEmpty()) {  
+		<span class="hljs-keyword">val</span> p = <span class="hljs-keyword">if</span> (board[nr][nc] == RED) temp.removeLast() <span class="hljs-keyword">else</span> temp.removeFirst()  
+
+		p.moveTo(nr, nc)  
+		state[nr][nc].addLast(p)  
+	}  
+
+	<span class="hljs-keyword">return</span> state[nr][nc].size  
+}  
+</code></pre>
+<ul>
+<li>체스 말을 이동하는 함수로 이동한 칸에 놓인 체스 말의 개수를 리턴 (4개 이상 시 게임을 바로 종료하기 위함)</li>
+<li>계획 단계에서 놓쳤던 이동하려는 칸이 파란색 또는 범위를 벗어나는 경우 방향을 반대로 뒤집은 후 이동하려는 칸 또한 파란색 또는 범위를 벗어나는 경우에 대한 조건 추가
+<pre><code class="hljs language-kotlin"><span class="hljs-keyword">if</span> (!isInBounds(nr, nc) || board[nr][nc] == BLUE) {  
+	piece.reverseDirection()  
+	<span class="hljs-keyword">val</span> (rnr, rnc) = piece.getNextPos()  
+
+	<span class="hljs-keyword">if</span> (!isInBounds(rnr, rnc) || board[rnr][rnc] == BLUE) {  
+		<span class="hljs-comment">// 양쪽 모두 파란색 혹은 한쪽 파란색 + 한쪽 범위 밖이면  </span>
+		<span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>  
+	}  
+
+	nr = rnr  
+	nc = rnc  
+}  
+</code></pre>
+</li>
+<li>이동해야하는 말(temp)에 대해 다음 칸의 색에 따라 그대로 이동하거나 위아래를 전환해 이동
+<ul>
+<li>temp의 인덱스 0 ← 아래 | 위 → lastIndex
+<ul>
+<li>예를들어, 이동해야할 말이 C이고 state[r, c] = {A, B, C, D, E, F} 인 경우 temp = {C, D, E, F}</li>
+</ul>
+</li>
+<li>다음칸 == 흰색: 아래 → 위 순서 그대로 추가해야하므로 <code>temp.removeFirst()</code></li>
+<li>다음칸 == 빨간색: 위 → 아래 역순이므로 <code>temp.removeLast()</code></li>
+</ul>
+</li>
+</ul>
+<h3>제출 결과</h3>
+<p><img src="image-16.webp" alt="" width="1038" height="78" class="centered-image"></p>
+<h3>전체 코드</h3>
+<pre><code class="hljs language-kotlin"><span class="hljs-keyword">import</span> java.util.StringTokenizer
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> {
+    <span class="hljs-keyword">val</span> st = StringTokenizer(readln())
+    <span class="hljs-keyword">val</span> n = st.nextToken().toInt()
+    <span class="hljs-keyword">val</span> k = st.nextToken().toInt()
+
+    <span class="hljs-keyword">val</span> board = Array(n) {
+        <span class="hljs-keyword">val</span> line = StringTokenizer(readln())
+        IntArray(n) { line.nextToken().toInt() }
+    }
+
+    <span class="hljs-keyword">val</span> pieces = Array(k) { id ->
+        <span class="hljs-keyword">val</span> line = StringTokenizer(readln())
+        <span class="hljs-keyword">val</span> r = line.nextToken().toInt() - <span class="hljs-number">1</span>
+        <span class="hljs-keyword">val</span> c = line.nextToken().toInt() - <span class="hljs-number">1</span>
+        <span class="hljs-keyword">val</span> d = line.nextToken().toInt() - <span class="hljs-number">1</span>
+        Chess.Piece(id, r, c, Direction[d])
+    }
+
+    print(Chess(board, pieces).play())
+}
+
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">enum</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Direction</span>(<span class="hljs-keyword">val</span> r: <span class="hljs-built_in">Int</span>, <span class="hljs-keyword">val</span> c: <span class="hljs-built_in">Int</span>) {
+    RIGHT(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>),
+    LEFT(<span class="hljs-number">0</span>, -<span class="hljs-number">1</span>),
+    UP(-<span class="hljs-number">1</span>, <span class="hljs-number">0</span>),
+    DOWN(<span class="hljs-number">1</span>, <span class="hljs-number">0</span>),
+    ;
+
+    <span class="hljs-keyword">lateinit</span> <span class="hljs-keyword">var</span> reverse: Direction
+
+    <span class="hljs-keyword">companion</span> <span class="hljs-keyword">object</span> {
+        <span class="hljs-keyword">init</span> {
+            UP.reverse = DOWN
+            DOWN.reverse = UP
+            LEFT.reverse = RIGHT
+            RIGHT.reverse = LEFT
+        }
+
+        <span class="hljs-keyword">operator</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">get</span><span class="hljs-params">(ordinal: <span class="hljs-type">Int</span>)</span></span> = entries[ordinal]
+    }
+}
+
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Chess</span>(<span class="hljs-keyword">val</span> board: Array&#x3C;IntArray>, <span class="hljs-keyword">val</span> pieces: Array&#x3C;Piece>) {
+
+    <span class="hljs-keyword">val</span> n = board.size
+    <span class="hljs-keyword">val</span> state = Array(n) { Array(n) { ArrayDeque&#x3C;Piece>() } }
+
+    <span class="hljs-keyword">init</span> {
+        pieces.forEach { p -> state[p.r][p.c].addLast(p) }
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">play</span><span class="hljs-params">()</span></span>: <span class="hljs-built_in">Int</span> {
+        <span class="hljs-keyword">for</span> (turn <span class="hljs-keyword">in</span> <span class="hljs-number">1.</span><span class="hljs-number">.1000</span>) {
+            <span class="hljs-keyword">for</span> (piece <span class="hljs-keyword">in</span> pieces) {
+                <span class="hljs-keyword">if</span> (move(piece) >= <span class="hljs-number">4</span>) {
+                    <span class="hljs-keyword">return</span> turn
+                }
+            }
+        }
+
+        <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>
+    }
+
+    <span class="hljs-comment">// 이동한 칸 위에 있는 말의 개수 리턴</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">move</span><span class="hljs-params">(piece: <span class="hljs-type">Piece</span>)</span></span>: <span class="hljs-built_in">Int</span> {
+        <span class="hljs-keyword">val</span> temp = ArrayDeque&#x3C;Piece>()
+        <span class="hljs-keyword">var</span> (nr, nc) = piece.getNextPos()
+
+        <span class="hljs-keyword">if</span> (!isInBounds(nr, nc) || board[nr][nc] == BLUE) {
+            piece.reverseDirection()
+            <span class="hljs-keyword">val</span> (rnr, rnc) = piece.getNextPos()
+
+            <span class="hljs-keyword">if</span> (!isInBounds(rnr, rnc) || board[rnr][rnc] == BLUE) {
+                <span class="hljs-comment">// 양쪽 모두 파란색 혹은 한쪽 파란색 + 한쪽 범위 밖이면</span>
+                <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>
+            }
+
+            nr = rnr
+            nc = rnc
+        }
+
+        <span class="hljs-keyword">while</span> (state[piece.r][piece.c].isNotEmpty()) {
+            <span class="hljs-keyword">val</span> p = state[piece.r][piece.c].removeLast()
+            temp.addFirst(p)
+
+            <span class="hljs-keyword">if</span> (p.id == piece.id) {
+                <span class="hljs-keyword">break</span>
+            }
+        }
+
+        <span class="hljs-keyword">while</span> (temp.isNotEmpty()) {
+            <span class="hljs-keyword">val</span> p = <span class="hljs-keyword">if</span> (board[nr][nc] == RED) temp.removeLast() <span class="hljs-keyword">else</span> temp.removeFirst()
+
+            p.moveTo(nr, nc)
+            state[nr][nc].addLast(p)
+        }
+
+        <span class="hljs-keyword">return</span> state[nr][nc].size
+    }
+
+    <span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">isInBounds</span><span class="hljs-params">(r: <span class="hljs-type">Int</span>, c: <span class="hljs-type">Int</span>)</span></span> = r <span class="hljs-keyword">in</span> <span class="hljs-number">0.</span>.&#x3C;n &#x26;&#x26; c <span class="hljs-keyword">in</span> <span class="hljs-number">0.</span>.&#x3C;n
+
+    <span class="hljs-keyword">companion</span> <span class="hljs-keyword">object</span> {
+        <span class="hljs-keyword">const</span> <span class="hljs-keyword">val</span> RED = <span class="hljs-number">1</span>
+        <span class="hljs-keyword">const</span> <span class="hljs-keyword">val</span> BLUE = <span class="hljs-number">2</span>
+    }
+
+    <span class="hljs-keyword">class</span> <span class="hljs-title class_">Piece</span>(<span class="hljs-keyword">val</span> id: <span class="hljs-built_in">Int</span>, <span class="hljs-keyword">var</span> r: <span class="hljs-built_in">Int</span>, <span class="hljs-keyword">var</span> c: <span class="hljs-built_in">Int</span>, <span class="hljs-keyword">var</span> d: Direction) {
+
+        <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">getNextPos</span><span class="hljs-params">()</span></span> = (r + d.r) to (c + d.c)
+
+        <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">moveTo</span><span class="hljs-params">(nr: <span class="hljs-type">Int</span>, nc: <span class="hljs-type">Int</span>)</span></span> {
+            r = nr
+            c = nc
+        }
+
+        <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">reverseDirection</span><span class="hljs-params">()</span></span> {
+            d = d.reverse
+        }
+    }
+}
+</code></pre>
+            </article>
+        </main>
+    </div>
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        
+        // 1. Check localStorage
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            body.className = savedTheme;
+        } else {
+            // 2. Check system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                body.className = 'dark-mode';
+            } else {
+                body.className = 'light-mode';
+            }
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (body.classList.contains('light-mode')) {
+                body.classList.replace('light-mode', 'dark-mode');
+                localStorage.setItem('theme', 'dark-mode');
+            } else {
+                body.classList.replace('dark-mode', 'light-mode');
+                localStorage.setItem('theme', 'light-mode');
+            }
+        });
+    </script>
+</body>
+</html>
