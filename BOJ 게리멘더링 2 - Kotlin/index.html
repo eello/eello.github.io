@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게리멘더링 2 풀이 - Kotlin - eello blog</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body class="light-mode">
+    <header>
+        <div class="header-inner">
+            <div class="header-left">
+                <h1><a href="../index.html">eello blog</a></h1>
+            </div>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                <span class="toggle-track">
+                    <span class="toggle-icon sun">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    </span>
+                    <span class="toggle-icon moon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </span>
+                    <span class="toggle-thumb"></span>
+                </span>
+            </button>
+        </div>
+    </header>
+    <div class="container">
+        <main>
+            <article>
+                <h1>게리멘더링 2 풀이 - Kotlin</h1>
+                <div class="article-meta">
+                    <span>2026-02-26</span>
+                </div>
+                <p><a href="https://www.acmicpc.net/problem/17779">문제 링크</a></p>
+<h3>조건 정리</h3>
+<ul>
+<li>격자 크기: N(5 &#x3C;= N &#x3C;= 20)</li>
+<li>1 &#x3C;= 각 구역의 인구 수 &#x3C;= 100</li>
+<li>기준점 (r, c)
+<ul>
+<li>왼쪽 상단 (0, 0) 기준</li>
+<li>`0 &#x3C;= r &#x3C; N-2</li>
+<li><code>1 &#x3C;= c &#x3C; N-1</code>
+<ul>
+<li>0 &#x3C;= c-d1</li>
+<li>c+d2 &#x3C; N</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>경계 길이: 1 &#x3C;= d1, d2
+<ul>
+<li>1 &#x3C;= d1 &#x3C;= x</li>
+<li>1 &#x3C;= d2 &#x3C; N - x</li>
+<li>x + d1 + d2 &#x3C; N</li>
+</ul>
+</li>
+<li>선거구 구역 - 왼쪽 상단 (0, 0), 기준점 (y, x) 기준
+<ul>
+<li>1번 선거구: <code>[0 &#x3C;= r &#x3C; y &#x26;&#x26; 0 &#x3C;= c &#x3C;= x] + [y &#x3C;= r &#x3C; y+d1 &#x26;&#x26; 0 &#x3C;= c &#x3C;= x-(1..d1)]</code></li>
+<li>2번 선거구: <code>[0 &#x3C;= r &#x3C; y &#x26;&#x26; x &#x3C; c &#x3C; N] + [y &#x3C;= r &#x3C;= y+d2 &#x26;&#x26; x+(1..d2+1) &#x3C; c &#x3C; N]</code></li>
+<li>3번 선거구: <code>[y+d1 &#x3C;= r &#x3C;= y+d1+d2 &#x26;&#x26; 0 &#x3C;= c &#x3C; x-d1+(0..d2)] + [y+d1+d2 &#x3C; r &#x3C; N &#x26;&#x26; 0 &#x3C;= c &#x3C; x-d1+d2]</code></li>
+<li>4번 선거구: <code>[y+d1 &#x3C; r &#x3C;= y+d1+d2 &#x26;&#x26; x+d2-(1..d2) &#x3C; c &#x3C; N] + [y+d1+d2 &#x3C; r &#x3C; N &#x26;&#x26; x-d1+d2 &#x3C;= c &#x3C; N]</code></li>
+<li>5번 선거구: 그 외</li>
+</ul>
+</li>
+</ul>
+<h3>예상 풀이</h3>
+<ul>
+<li>유효한 모든 기준점 (r, c) 기준으로 반복: <code>for (r in 0..&#x3C;N-2) { for (c in 1..&#x3C;N-2) {...} }</code></li>
+<li>모든 기준점마다 d1(1 &#x3C;= d1 &#x3C;= c), d2(1 &#x3C;= d2 &#x3C; N-c)의 모든 조합 구성: <code>for (d1 in 1..&#x3C;c) { for (d2 in 1..&#x3C;N-c-1) { ... } }</code></li>
+<li>모든 조합마다 각 구역의 총 인원수 계산, 5구역은 (전체 인원수 - 나머지 4개 구역의 총 인원수)
+<ul>
+<li>각 구역의 인원수 계산은 <strong>누적합</strong> 이용</li>
+</ul>
+</li>
+<li>시간복잡도: <code>N^2 + N^5</code>
+<ul>
+<li>누적합 계산(<code>N^2</code>) + 유효한 모든 기준점(<code>N^2</code>) * d1, d2 조합 구성(<code>N^2</code>) * 각 구역의 인원수 계산(누적합 이용: <code>N</code>)</li>
+</ul>
+</li>
+</ul>
+<h4>누적합을 사용하는 이유</h4>
+<p>만일 각 구역의 인원수 계산이 누적합을 사용하지 않는다면, 2중 반복문으로 각 구역에 해당하는 모든 원소를 반복하며 인원수를 더해야하고 이 과정의 시간 복잡도는 O(N^2)<br>
+이렇게 각 구역의 인원수 계산에 N^2의 시간이 걸리게 되면 전체 시간 복잡도는 O(N^6)이 되고 N의 최대는 20으로 20^6 = 64,000,000번의 연산 횟수가 된다.</p>
+<p>자바로 시간 제한 1초를 지키기 위해 1억 번 이하의 연산 횟수를 갖더라도 연산 자체가 가벼우면 통과될 가능성이 있긴 하지만 권장은 2000만~5000만 번 이하의 연산횟수를 갖는 것이 시간 제한에 여유롭다. (제미나이 추천 기준)<br>
+따라서 64,000,000번의 연산 횟수는 시간 제한에 걸릴 수 있어 줄이는 방법을 찾게 되었고 생각한 방법이 누적합이다.</p>
+<p>최초 1회로 횡으로 누적합을 계산해 놓으면 전체 구역의 인구수를 구하는데 N의 시간복잡도만 필요하다. 누적합 계산은 N^2이 걸리지만 별도로 진행되기 때문에 최대 400번의 연산 횟수만 거치면 되고 기준점과 d1,d2 조합에 따른 각 구역의 인원수를 구하는 것에는 N^5이 걸리게 된다. 전체 시간복잡도는 O(N^2 + N^5)로 최대 400 + 20^5(3,200,000) = 3,200,400번의 연산 횟수가 필요하고 N^6보다 약 6천만번의 연산횟수를 줄일 수 있어 시간 제한에 여유로울 것으로 예상한다.</p>
+<h3>풀이</h3>
+<p>누적합을 계산하기 위한 함수를 만들어 횡(→) 방향의 누적합 배열을 리턴하는 함수를 정의해 가장 먼저 누적합을 계산하도록 했다.</p>
+<pre><code class="hljs language-kotlin"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">accumulate</span><span class="hljs-params">(arr: <span class="hljs-type">Array</span>&#x3C;<span class="hljs-type">IntArray</span>>)</span></span>: Array&#x3C;IntArray> {  
+    <span class="hljs-keyword">val</span> n = arr.size  
+    <span class="hljs-keyword">return</span> Array(n) { r ->  
+        <span class="hljs-keyword">var</span> acc = <span class="hljs-number">0</span>  
+        IntArray(n) { c ->  
+            acc += arr[r][c]  
+            acc  
+        }  
+    }  
+}
+</code></pre>
+<p>그리고 1<del>4 구역의 범위에 따른 총 인원수를 계산하기 위해 4개의 함수를 정의했다.<br>
+함수는 누적합 배열(<code>acc</code>)를 입력으로 받아 범위에 따라 누적합을 이용해 구역의 총 인원 수를 계산한다. 5구역은 도시의 전체 인원수에서 1</del>4 구역의 총 인원수를 빼면 구할 수 있기 때문에 함수로 정의하지 않았다.</p>
+<pre><code class="hljs language-kotlin"><span class="hljs-comment">// [0 &#x3C;= r &#x3C; y &#x26;&#x26; 0 &#x3C;= c &#x3C;= x] + [y &#x3C;= r &#x3C; y+d1 &#x26;&#x26; 0 &#x3C;= c &#x3C;= x-(1..d1)]  </span>
+<span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">getSection1</span><span class="hljs-params">(acc: <span class="hljs-type">Array</span>&#x3C;<span class="hljs-type">IntArray</span>>, y: <span class="hljs-type">Int</span>, x: <span class="hljs-type">Int</span>, d1: <span class="hljs-type">Int</span>, d2: <span class="hljs-type">Int</span>)</span></span>: <span class="hljs-built_in">Int</span> {  
+    <span class="hljs-keyword">var</span> sum = <span class="hljs-number">0</span>  
+    <span class="hljs-keyword">var</span> temp = <span class="hljs-number">0</span>  
+    <span class="hljs-keyword">for</span> (r <span class="hljs-keyword">in</span> <span class="hljs-number">0.</span>.&#x3C;y + d1) {  
+        <span class="hljs-keyword">if</span> (y &#x3C;= r) {  
+            temp++  
+        }  
+  
+        sum += acc[r][x - temp]  
+    }  
+  
+    <span class="hljs-keyword">return</span> sum  
+}  
+  
+<span class="hljs-comment">// [0 &#x3C;= r &#x3C; y &#x26;&#x26; x &#x3C; c &#x3C; N] + [y &#x3C;= r &#x3C;= y+d2 &#x26;&#x26; x+(1..d2+1) &#x3C; c &#x3C; N]  </span>
+<span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">getSection2</span><span class="hljs-params">(acc: <span class="hljs-type">Array</span>&#x3C;<span class="hljs-type">IntArray</span>>, y: <span class="hljs-type">Int</span>, x: <span class="hljs-type">Int</span>, d1: <span class="hljs-type">Int</span>, d2: <span class="hljs-type">Int</span>)</span></span>: <span class="hljs-built_in">Int</span> {  
+    <span class="hljs-keyword">val</span> lastIndex = acc[<span class="hljs-number">0</span>].lastIndex  
+    <span class="hljs-keyword">var</span> sum = <span class="hljs-number">0</span>  
+    <span class="hljs-keyword">var</span> temp = <span class="hljs-number">0</span>  
+  
+    <span class="hljs-keyword">for</span> (r <span class="hljs-keyword">in</span> <span class="hljs-number">0.</span>.&#x3C;y + d2 + <span class="hljs-number">1</span>) {  
+        sum += acc[r][lastIndex] - acc[r][x + temp]  
+        <span class="hljs-keyword">if</span> (y &#x3C;= r) {  
+            temp++  
+        }  
+    }  
+  
+    <span class="hljs-keyword">return</span> sum  
+}  
+  
+<span class="hljs-comment">// [y+d1 &#x3C;= r &#x3C;= y+d1+d2 &#x26;&#x26; 0 &#x3C;= c &#x3C; x-d1+(0..d2)] + [y+d1+d2 &#x3C; r &#x3C; N &#x26;&#x26; 0 &#x3C;= c &#x3C; x-d1+d2]  </span>
+<span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">getSection3</span><span class="hljs-params">(acc: <span class="hljs-type">Array</span>&#x3C;<span class="hljs-type">IntArray</span>>, y: <span class="hljs-type">Int</span>, x: <span class="hljs-type">Int</span>, d1: <span class="hljs-type">Int</span>, d2: <span class="hljs-type">Int</span>)</span></span>: <span class="hljs-built_in">Int</span> {  
+    <span class="hljs-keyword">val</span> lastIndex = acc.lastIndex  
+    <span class="hljs-keyword">var</span> sum = <span class="hljs-number">0</span>  
+    <span class="hljs-keyword">var</span> temp = <span class="hljs-number">0</span>  
+  
+    <span class="hljs-keyword">for</span> (r <span class="hljs-keyword">in</span> y + d1..lastIndex) {  
+        <span class="hljs-keyword">if</span> (<span class="hljs-number">0</span> &#x3C;= x - d1 - <span class="hljs-number">1</span> + temp) {  
+            sum += acc[r][x - d1 - <span class="hljs-number">1</span> + temp]  
+        }  
+  
+        <span class="hljs-keyword">if</span> (r &#x3C; y + d1 + d2) {  
+            temp++  
+        }  
+    }  
+  
+    <span class="hljs-keyword">return</span> sum  
+}  
+  
+<span class="hljs-comment">// [y+d2 &#x3C; r &#x3C;= y+d1+d2 &#x26;&#x26; x+d2-(1..d2) &#x3C; c &#x3C; N] + [y+d1+d2 &#x3C; r &#x3C; N &#x26;&#x26; x-d1+d2 &#x3C;= c &#x3C; N]  </span>
+<span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">getSection4</span><span class="hljs-params">(acc: <span class="hljs-type">Array</span>&#x3C;<span class="hljs-type">IntArray</span>>, y: <span class="hljs-type">Int</span>, x: <span class="hljs-type">Int</span>, d1: <span class="hljs-type">Int</span>, d2: <span class="hljs-type">Int</span>)</span></span>: <span class="hljs-built_in">Int</span> {  
+    <span class="hljs-keyword">val</span> lastIndex = acc.lastIndex  
+    <span class="hljs-keyword">var</span> sum = <span class="hljs-number">0</span>  
+    <span class="hljs-keyword">var</span> temp = <span class="hljs-number">0</span>  
+  
+    <span class="hljs-keyword">for</span> (r <span class="hljs-keyword">in</span> y + d2 + <span class="hljs-number">1.</span>.lastIndex) {  
+        sum += acc[r][lastIndex] - acc[r][x - temp + d2 - <span class="hljs-number">1</span>]  
+        <span class="hljs-keyword">if</span> (r &#x3C;= y + d1 + d2) {  
+            temp++  
+        }  
+    }  
+  
+    <span class="hljs-keyword">return</span> sum  
+}
+</code></pre>
+<p>각 구역의 인원수의 최고값과 최소값의 차이를 구하는 함수 <code>getMinDiff()</code>를 정의했다. 여기서 가능한 모든 기준점 (y, x)와 (d1, d2) 조합을 만들기 위해 4중 반복문을 사용했다.</p>
+<ul>
+<li><code>funs</code>는 1<del>4 구역의 인원수를 계산하는 함수가 담긴 리스트로 조합에 따른 각 구역의 인원수를 계산하는 코드를 구현하기 쉽게 만들기 위해 추가, 이를 위해 각 함수(getSection1</del>4)에 사용되지 인자라도 정의에 추가해 통일</li>
+</ul>
+<pre><code class="hljs language-kotlin"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">getMinDiff</span><span class="hljs-params">(arr: <span class="hljs-type">Array</span>&#x3C;<span class="hljs-type">IntArray</span>>)</span></span>: <span class="hljs-built_in">Int</span> {  
+    <span class="hljs-keyword">val</span> n = arr.size  
+    <span class="hljs-keyword">val</span> acc = accumulate(arr)  
+    <span class="hljs-keyword">val</span> total = acc.sumOf { it[it.lastIndex] }  
+    <span class="hljs-keyword">val</span> funs = arrayOf&#x3C;(Array&#x3C;IntArray>, <span class="hljs-built_in">Int</span>, <span class="hljs-built_in">Int</span>, <span class="hljs-built_in">Int</span>, <span class="hljs-built_in">Int</span>) -> <span class="hljs-built_in">Int</span>>(  
+        ::getSection1, ::getSection2, ::getSection3, ::getSection4  
+    )  
+  
+    <span class="hljs-keyword">var</span> answer = total  
+    <span class="hljs-keyword">for</span> (y <span class="hljs-keyword">in</span> <span class="hljs-number">0.</span>.&#x3C;n - <span class="hljs-number">2</span>) {  
+        <span class="hljs-keyword">for</span> (x <span class="hljs-keyword">in</span> <span class="hljs-number">1.</span>.&#x3C;n - <span class="hljs-number">1</span>) {  
+            <span class="hljs-keyword">for</span> (d1 <span class="hljs-keyword">in</span> <span class="hljs-number">1.</span>.x) {  
+                <span class="hljs-keyword">for</span> (d2 <span class="hljs-keyword">in</span> <span class="hljs-number">1.</span>.&#x3C;n - x) {  
+                    <span class="hljs-keyword">if</span> (y + d1 + d2 >= n) {  
+                        <span class="hljs-keyword">continue</span>  
+                    }  
+  
+                    <span class="hljs-keyword">var</span> max = <span class="hljs-number">0</span>  
+                    <span class="hljs-keyword">var</span> min = total  
+                    <span class="hljs-keyword">var</span> s5 = total <span class="hljs-comment">// 5구역  </span>
+                    <span class="hljs-keyword">for</span> (f <span class="hljs-keyword">in</span> funs) { <span class="hljs-comment">// 1~4구역 계산  </span>
+                        <span class="hljs-keyword">val</span> p = f(acc, y, x, d1, d2)  
+                        max = max(max, p)  
+                        min = min(min, p)  
+                        s5 -= p  
+                    }  
+  
+                    max = max(max, s5)  
+                    min = min(min, s5)  
+  
+                    answer = min(answer, max - min)  
+                }  
+            }  
+        }  
+    }  
+  
+    <span class="hljs-keyword">return</span> answer  
+}
+</code></pre>
+<h3>제출 결과</h3>
+<p><img src="image-15.webp" alt="" width="921" height="68" class="centered-image"></p>
+<h3>전체 코드</h3>
+<pre><code class="hljs language-kotlin"><span class="hljs-keyword">import</span> java.util.*  
+<span class="hljs-keyword">import</span> kotlin.math.max  
+<span class="hljs-keyword">import</span> kotlin.math.min  
+  
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> {  
+    <span class="hljs-keyword">val</span> n = readln().toInt()  
+    <span class="hljs-keyword">val</span> map = Array(n) {  
+        <span class="hljs-keyword">val</span> line = StringTokenizer(readln())  
+        IntArray(n) {  
+            line.nextToken().toInt()  
+        }  
+    }  
+  
+    print(getMinDiff(map))  
+}  
+  
+<span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">getMinDiff</span><span class="hljs-params">(arr: <span class="hljs-type">Array</span>&#x3C;<span class="hljs-type">IntArray</span>>)</span></span>: <span class="hljs-built_in">Int</span> {  
+    <span class="hljs-keyword">val</span> n = arr.size  
+    <span class="hljs-keyword">val</span> acc = accumulate(arr)  
+    <span class="hljs-keyword">val</span> total = acc.sumOf { it[it.lastIndex] }  
+    <span class="hljs-keyword">val</span> funs = arrayOf&#x3C;(Array&#x3C;IntArray>, <span class="hljs-built_in">Int</span>, <span class="hljs-built_in">Int</span>, <span class="hljs-built_in">Int</span>, <span class="hljs-built_in">Int</span>) -> <span class="hljs-built_in">Int</span>>(  
+        ::getSection1, ::getSection2, ::getSection3, ::getSection4  
+    )  
+  
+    <span class="hljs-keyword">var</span> answer = total  
+    <span class="hljs-keyword">for</span> (y <span class="hljs-keyword">in</span> <span class="hljs-number">0.</span>.&#x3C;n - <span class="hljs-number">2</span>) {  
+        <span class="hljs-keyword">for</span> (x <span class="hljs-keyword">in</span> <span class="hljs-number">1.</span>.&#x3C;n - <span class="hljs-number">1</span>) {  
+            <span class="hljs-keyword">for</span> (d1 <span class="hljs-keyword">in</span> <span class="hljs-number">1.</span>.x) {  
+                <span class="hljs-keyword">for</span> (d2 <span class="hljs-keyword">in</span> <span class="hljs-number">1.</span>.&#x3C;n - x) {  
+                    <span class="hljs-keyword">if</span> (y + d1 + d2 >= n) {  
+                        <span class="hljs-keyword">continue</span>  
+                    }  
+  
+                    <span class="hljs-keyword">var</span> max = <span class="hljs-number">0</span>  
+                    <span class="hljs-keyword">var</span> min = total  
+                    <span class="hljs-keyword">var</span> s5 = total <span class="hljs-comment">// 5구역  </span>
+                    <span class="hljs-keyword">for</span> (f <span class="hljs-keyword">in</span> funs) { <span class="hljs-comment">// 1~4구역 계산  </span>
+                        <span class="hljs-keyword">val</span> p = f(acc, y, x, d1, d2)  
+                        max = max(max, p)  
+                        min = min(min, p)  
+                        s5 -= p  
+                    }  
+  
+                    max = max(max, s5)  
+                    min = min(min, s5)  
+  
+                    answer = min(answer, max - min)  
+                }  
+            }  
+        }  
+    }  
+  
+    <span class="hljs-keyword">return</span> answer  
+}  
+  
+<span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">accumulate</span><span class="hljs-params">(arr: <span class="hljs-type">Array</span>&#x3C;<span class="hljs-type">IntArray</span>>)</span></span>: Array&#x3C;IntArray> {  
+    <span class="hljs-keyword">val</span> n = arr.size  
+    <span class="hljs-keyword">return</span> Array(n) { r ->  
+        <span class="hljs-keyword">var</span> acc = <span class="hljs-number">0</span>  
+        IntArray(n) { c ->  
+            acc += arr[r][c]  
+            acc  
+        }  
+    }  
+}  
+  
+<span class="hljs-comment">// [0 &#x3C;= r &#x3C; y &#x26;&#x26; 0 &#x3C;= c &#x3C;= x] + [y &#x3C;= r &#x3C; y+d1 &#x26;&#x26; 0 &#x3C;= c &#x3C;= x-(1..d1)]  </span>
+<span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">getSection1</span><span class="hljs-params">(acc: <span class="hljs-type">Array</span>&#x3C;<span class="hljs-type">IntArray</span>>, y: <span class="hljs-type">Int</span>, x: <span class="hljs-type">Int</span>, d1: <span class="hljs-type">Int</span>, d2: <span class="hljs-type">Int</span>)</span></span>: <span class="hljs-built_in">Int</span> {  
+    <span class="hljs-keyword">var</span> sum = <span class="hljs-number">0</span>  
+    <span class="hljs-keyword">var</span> temp = <span class="hljs-number">0</span>  
+    <span class="hljs-keyword">for</span> (r <span class="hljs-keyword">in</span> <span class="hljs-number">0.</span>.&#x3C;y + d1) {  
+        <span class="hljs-keyword">if</span> (y &#x3C;= r) {  
+            temp++  
+        }  
+  
+        sum += acc[r][x - temp]  
+    }  
+  
+    <span class="hljs-keyword">return</span> sum  
+}  
+  
+<span class="hljs-comment">// [0 &#x3C;= r &#x3C; y &#x26;&#x26; x &#x3C; c &#x3C; N] + [y &#x3C;= r &#x3C;= y+d2 &#x26;&#x26; x+(1..d2+1) &#x3C; c &#x3C; N]  </span>
+<span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">getSection2</span><span class="hljs-params">(acc: <span class="hljs-type">Array</span>&#x3C;<span class="hljs-type">IntArray</span>>, y: <span class="hljs-type">Int</span>, x: <span class="hljs-type">Int</span>, d1: <span class="hljs-type">Int</span>, d2: <span class="hljs-type">Int</span>)</span></span>: <span class="hljs-built_in">Int</span> {  
+    <span class="hljs-keyword">val</span> lastIndex = acc[<span class="hljs-number">0</span>].lastIndex  
+    <span class="hljs-keyword">var</span> sum = <span class="hljs-number">0</span>  
+    <span class="hljs-keyword">var</span> temp = <span class="hljs-number">0</span>  
+  
+    <span class="hljs-keyword">for</span> (r <span class="hljs-keyword">in</span> <span class="hljs-number">0.</span>.&#x3C;y + d2 + <span class="hljs-number">1</span>) {  
+        sum += acc[r][lastIndex] - acc[r][x + temp]  
+        <span class="hljs-keyword">if</span> (y &#x3C;= r) {  
+            temp++  
+        }  
+    }  
+  
+    <span class="hljs-keyword">return</span> sum  
+}  
+  
+<span class="hljs-comment">// [y+d1 &#x3C;= r &#x3C;= y+d1+d2 &#x26;&#x26; 0 &#x3C;= c &#x3C; x-d1+(0..d2)] + [y+d1+d2 &#x3C; r &#x3C; N &#x26;&#x26; 0 &#x3C;= c &#x3C; x-d1+d2]  </span>
+<span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">getSection3</span><span class="hljs-params">(acc: <span class="hljs-type">Array</span>&#x3C;<span class="hljs-type">IntArray</span>>, y: <span class="hljs-type">Int</span>, x: <span class="hljs-type">Int</span>, d1: <span class="hljs-type">Int</span>, d2: <span class="hljs-type">Int</span>)</span></span>: <span class="hljs-built_in">Int</span> {  
+    <span class="hljs-keyword">val</span> lastIndex = acc.lastIndex  
+    <span class="hljs-keyword">var</span> sum = <span class="hljs-number">0</span>  
+    <span class="hljs-keyword">var</span> temp = <span class="hljs-number">0</span>  
+  
+    <span class="hljs-keyword">for</span> (r <span class="hljs-keyword">in</span> y + d1..lastIndex) {  
+        <span class="hljs-keyword">if</span> (<span class="hljs-number">0</span> &#x3C;= x - d1 - <span class="hljs-number">1</span> + temp) {  
+            sum += acc[r][x - d1 - <span class="hljs-number">1</span> + temp]  
+        }  
+  
+        <span class="hljs-keyword">if</span> (r &#x3C; y + d1 + d2) {  
+            temp++  
+        }  
+    }  
+  
+    <span class="hljs-keyword">return</span> sum  
+}  
+  
+<span class="hljs-comment">// [y+d2 &#x3C; r &#x3C;= y+d1+d2 &#x26;&#x26; x+d2-(1..d2) &#x3C; c &#x3C; N] + [y+d1+d2 &#x3C; r &#x3C; N &#x26;&#x26; x-d1+d2 &#x3C;= c &#x3C; N]  </span>
+<span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">getSection4</span><span class="hljs-params">(acc: <span class="hljs-type">Array</span>&#x3C;<span class="hljs-type">IntArray</span>>, y: <span class="hljs-type">Int</span>, x: <span class="hljs-type">Int</span>, d1: <span class="hljs-type">Int</span>, d2: <span class="hljs-type">Int</span>)</span></span>: <span class="hljs-built_in">Int</span> {  
+    <span class="hljs-keyword">val</span> lastIndex = acc.lastIndex  
+    <span class="hljs-keyword">var</span> sum = <span class="hljs-number">0</span>  
+    <span class="hljs-keyword">var</span> temp = <span class="hljs-number">0</span>  
+  
+    <span class="hljs-keyword">for</span> (r <span class="hljs-keyword">in</span> y + d2 + <span class="hljs-number">1.</span>.lastIndex) {  
+        sum += acc[r][lastIndex] - acc[r][x - temp + d2 - <span class="hljs-number">1</span>]  
+        <span class="hljs-keyword">if</span> (r &#x3C;= y + d1 + d2) {  
+            temp++  
+        }  
+    }  
+  
+    <span class="hljs-keyword">return</span> sum  
+}
+</code></pre>
+            </article>
+        </main>
+    </div>
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        
+        // 1. Check localStorage
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            body.className = savedTheme;
+        } else {
+            // 2. Check system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                body.className = 'dark-mode';
+            } else {
+                body.className = 'light-mode';
+            }
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (body.classList.contains('light-mode')) {
+                body.classList.replace('light-mode', 'dark-mode');
+                localStorage.setItem('theme', 'dark-mode');
+            } else {
+                body.classList.replace('dark-mode', 'light-mode');
+                localStorage.setItem('theme', 'light-mode');
+            }
+        });
+    </script>
+</body>
+</html>
