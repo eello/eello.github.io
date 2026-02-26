@@ -100,8 +100,8 @@
     }  
 }
 </code></pre>
-<p>그리고 1<del>4 구역의 범위에 따른 총 인원수를 계산하기 위해 4개의 함수를 정의했다.<br>
-함수는 누적합 배열(<code>acc</code>)를 입력으로 받아 범위에 따라 누적합을 이용해 구역의 총 인원 수를 계산한다. 5구역은 도시의 전체 인원수에서 1</del>4 구역의 총 인원수를 빼면 구할 수 있기 때문에 함수로 정의하지 않았다.</p>
+<p>그리고 1-4 구역의 범위에 따른 총 인원수를 계산하기 위해 4개의 함수를 정의했다.<br>
+함수는 누적합 배열(<code>acc</code>)를 입력으로 받아 범위에 따라 누적합을 이용해 구역의 총 인원 수를 계산한다. 5구역은 도시의 전체 인원수에서 1-4 구역의 총 인원수를 빼면 구할 수 있기 때문에 함수로 정의하지 않았다.</p>
 <pre><code class="hljs language-kotlin"><span class="hljs-comment">// [0 &#x3C;= r &#x3C; y &#x26;&#x26; 0 &#x3C;= c &#x3C;= x] + [y &#x3C;= r &#x3C; y+d1 &#x26;&#x26; 0 &#x3C;= c &#x3C;= x-(1..d1)]  </span>
 <span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">getSection1</span><span class="hljs-params">(acc: <span class="hljs-type">Array</span>&#x3C;<span class="hljs-type">IntArray</span>>, y: <span class="hljs-type">Int</span>, x: <span class="hljs-type">Int</span>, d1: <span class="hljs-type">Int</span>, d2: <span class="hljs-type">Int</span>)</span></span>: <span class="hljs-built_in">Int</span> {  
     <span class="hljs-keyword">var</span> sum = <span class="hljs-number">0</span>  
@@ -170,7 +170,7 @@
 </code></pre>
 <p>각 구역의 인원수의 최고값과 최소값의 차이를 구하는 함수 <code>getMinDiff()</code>를 정의했다. 여기서 가능한 모든 기준점 (y, x)와 (d1, d2) 조합을 만들기 위해 4중 반복문을 사용했다.</p>
 <ul>
-<li><code>funs</code>는 1<del>4 구역의 인원수를 계산하는 함수가 담긴 리스트로 조합에 따른 각 구역의 인원수를 계산하는 코드를 구현하기 쉽게 만들기 위해 추가, 이를 위해 각 함수(getSection1</del>4)에 사용되지 인자라도 정의에 추가해 통일</li>
+<li><code>funs</code>는 1-4 구역의 인원수를 계산하는 함수가 담긴 리스트로 조합에 따른 각 구역의 인원수를 계산하는 코드를 구현하기 쉽게 만들기 위해 추가, 이를 위해 각 함수(getSection1-4)에 사용되지 인자라도 정의에 추가해 통일</li>
 </ul>
 <pre><code class="hljs language-kotlin"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">getMinDiff</span><span class="hljs-params">(arr: <span class="hljs-type">Array</span>&#x3C;<span class="hljs-type">IntArray</span>>)</span></span>: <span class="hljs-built_in">Int</span> {  
     <span class="hljs-keyword">val</span> n = arr.size  
